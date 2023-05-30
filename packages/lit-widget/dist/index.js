@@ -85,7 +85,25 @@
           return data;
       }, data;
   }
-  var LitWidget = function(LitElement) {
+  /**
+   * Declarative binding to child elements for [LitElement](https://lit.dev/)
+   * like [Github/Catalyst](https://catalyst.rocks/) and
+   * [Stimulus.js](https://stimulus.hotwired.dev/).
+   *
+   * To define a widget, subclass LitWidget, specify targets using
+   * the @target/@targets decorators or the targets/targetsAll static property,
+   * and add event handlers using the @onEvent decorator or
+   * the static events property.
+   *
+   * LitWidget unlike LitElement implements the **`render()`** method,
+   * which renders all child elements of the widget through `<slot>`.
+   * To change this behavior, simply override the `render` method and
+   * implement your own rendering.
+   *
+   * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
+   * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
+   * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+   */ var LitWidget = function(LitElement) {
       function LitWidget() {
           return LitElement.apply(this, arguments);
       }
@@ -204,7 +222,9 @@
           }
       ]), LitWidget;
   }(lit.LitElement);
-  LitWidget.sharedStyles = !0, LitWidget.addInitializer(function(instance) {
+  /**
+     * Specifies whether to import page styles into shadowRoot.
+     */ LitWidget.sharedStyles = !0, LitWidget.addInitializer(function(instance) {
       var klass = Object.getPrototypeOf(instance).constructor;
       if (void 0 !== klass.targets) for(var _step, _iterator = _create_for_of_iterator_helper_loose(Object.entries(klass.targets)); !(_step = _iterator()).done;)!function() {
           var _step_value = _step.value, target1 = _step_value[0], options = _step_value[1];

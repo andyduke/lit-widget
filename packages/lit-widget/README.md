@@ -1,28 +1,32 @@
 
 # LitWidget
 
-**LitWidget** - это паттерн для упрощения разработки Веб компонентов с помощью библиотеки [Lit](https://lit.dev/).
+[ ENGLISH | [RUSSIAN](./README.ru.md) ]
 
-Виджет **LitWidget** является расширением **LitElement** и позволяет декларативно связать св-ва класса компонента с дочерними html-элементами, а так же добавить к ним обработчики событий. Этот паттерн похожим образом реализован в [Github/Catalyst](https://catalyst.rocks/) и [Stimulus.js](https://stimulus.hotwired.dev/).
+**LitWidget** is a pattern to simplify the development of Web Components using the [Lit](https://lit.dev/) library.
 
-**LitWidget**, в отличии от **LitElement**, по умолчанию воспроизводит (`render`) все вложенные элементы, таким образом достигается Прогрессивное Улучшение, когда html-страница содержит весь контент, который может быть проиндексирован поисковыми роботами, а не генерирует контент с помощью кода. Для изменения этого поведения достаточно переопределить метод `render` в виджете.
+The **LitWidget** widget extends **LitElement** and gives you the ability to declaratively bind component class properties to the component's html child elements, as well as add event handlers to them. This pattern is similarly implemented in [Github/Catalyst](https://catalyst.rocks/) and [Stimulus.js](https://stimulus.hotwired.dev/).
 
-## Пример использования
+**LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements, thus Progressive Enhancement is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
 
-В следующем примере св-ва класса `input` и `output` будут автоматически связаны с html-элементами внутри компонента, которые помечены атрибутами `data-target="w-hello.input"` и `data-target="w-hello.output"` соответственно, а так же метод класса `greet()` будет добавлен в качестве обработчика события `click` к кнопке, помеченной атрибутом `data-target="w-hello.button"`.
+Also, **LitWidget** makes all page styles (both `<style>` and `<link>` tags) available in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute), this behavior can be disabled by setting the `sharedStyles` static property to `false`.
 
-Класс виджета:
+## Usage example
+
+In the following example, class properties `input` and `output` will be automatically bound to html elements inside the component tag that are marked with `data-target="w-hello.input"` and `data-target="w-hello.output"` respectively, as well as the `greet()` class method will be added as a `click` event handler to the button marked with the `data-target="w-hello.button"` attribute.
+
+Widget class:
 ```js
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
 
-  // Будет указывать на элемент с атрибутом data-target="w-button.input"
+  // Will point to an element with the attribute data-target="w-button.input"
   @target input
 
-  // Будет указывать на элемент с атрибутом data-target="w-button.output"
+  // Will point to an element with the attribute data-target="w-button.output"
   @target output
 
-  // Обработчик события click для элемента с атрибутом data-target="w-button.button"
+  // Click event handler for element with data-target="w-button.button" attribute
   @onEvent('button', 'click')
   greet() {
     this.output.textContent = `Hello, ${this.input.value}!`;
@@ -31,7 +35,7 @@ class HelloWidget extends LitWidget {
 }
 ```
 
-HTML-разметка:
+HTML markup:
 ```html
 <w-hello>
   <input data-target="w-hello.input" type="text" />

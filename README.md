@@ -43,3 +43,5 @@ class HelloWidget extends LitWidget {
   </td>
 </tr>
 </table>
+
+[Read more](packages/lit-widget/README.md)
