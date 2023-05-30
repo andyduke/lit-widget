@@ -84,6 +84,9 @@ import { templateContent } from 'lit/directives/template-content.js';
  * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
  * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
  * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+ *
+ * TODO: Describe "static targets/targetsAll"
+ * TODO: Describe "static events"
  */ class LitWidget extends LitElement {
     static widget(name) {
         return function(proto, options) {
@@ -129,8 +132,10 @@ import { templateContent } from 'lit/directives/template-content.js';
     }
     _attachEvents() {
         for (let event of this._events){
+            let targetName, selector;
             if (event.debounce && event.throttle) throw Error(`[LitWidget "${$this.tagName.toLowerCase()}"] For the event "${event.event}", debounce and throttle are specified, you can specify only one thing.`);
-            let target1 = this.findTarget(this.tagName, event.target);
+            if (event.target instanceof Object ? selector = event.target.selector : targetName = event.target, !targetName && !selector) throw Error(`[LitWidget "${$this.tagName.toLowerCase()}"] Invalid event target: "${event.target}".`);
+            let target1 = this.findTarget(this.tagName, /*event.target*/ targetName, selector);
             if (target1) {
                 let handler = event.handler;
                 'string' == typeof handler && (handler = this[handler]), event._handler = (...args)=>handler.apply(this, args), event.debounce ? event._handler = debounce(event._handler, event.debounce) : event.throttle && (event._handler = throttle(event._handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (event._handler = event.wrapper.call(this, event._handler, this)), target1.addEventListener(event.event, event._handler);
@@ -285,7 +290,10 @@ import { templateContent } from 'lit/directives/template-content.js';
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * @param {string} target - The name of the target to find the HTML element.
+ * @param {(string|{selector: string})} target - The name of the target or CSS-selector to find the HTML element.
+ *     To use a CSS selector to find a target for attaching an event handler,
+ *     you must pass an object with the `selector` field instead of the target name, for example:
+ *     `@onEvent({selector: '.button'}, 'click')`.
  * @param {string} event - The name of the DOM event to which the handler is attached.
  * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
  * @param options.debounce - Delay to debounce the execution of the event handler,

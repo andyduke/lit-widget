@@ -20,6 +20,9 @@ import { throttle, debounce } from './debounce';
  * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
  * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
  * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+ *
+ * TODO: Describe "static targets/targetsAll"
+ * TODO: Describe "static events"
  */
 export class LitWidget extends LitElement {
 
@@ -99,7 +102,20 @@ export class LitWidget extends LitElement {
         throw new Error(`[LitWidget "${$this.tagName.toLowerCase()}"] For the event "${event.event}", debounce and throttle are specified, you can specify only one thing.`);
       }
 
-      const target = this.findTarget(this.tagName, event.target);
+      let targetName;
+      let selector;
+
+      if (event.target instanceof Object) {
+        selector = event.target['selector'];
+      } else {
+        targetName = event.target;
+      }
+
+      if (!targetName && !selector) {
+        throw new Error(`[LitWidget "${$this.tagName.toLowerCase()}"] Invalid event target: "${event.target}".`);
+      }
+
+      const target = this.findTarget(this.tagName, /*event.target*/targetName, selector);
       if (target) {
         let handler = event.handler;
         if (typeof handler === 'string') handler = this[handler];

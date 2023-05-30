@@ -135,6 +135,9 @@
    * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
    * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
    * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+   *
+   * TODO: Describe "static targets/targetsAll"
+   * TODO: Describe "static events"
    */ var LitWidget = function(LitElement) {
       function LitWidget() {
           return LitElement.apply(this, arguments);
@@ -188,9 +191,11 @@
           });
       }, _proto._attachEvents = function() {
           for(var _step, _this = this, _this1 = this, _iterator = _create_for_of_iterator_helper_loose(this._events); !(_step = _iterator()).done;)!function() {
-              var event = _step.value;
+              var left, right, event = _step.value;
               if (event.debounce && event.throttle) throw Error('[LitWidget "' + $this.tagName.toLowerCase() + '"] For the event "' + event.event + '", debounce and throttle are specified, you can specify only one thing.');
-              var target1 = _this.findTarget(_this.tagName, event.target);
+              var targetName = void 0, selector = void 0;
+              if ((left = event.target, null != (right = Object) && "undefined" != typeof Symbol && right[Symbol.hasInstance] ? !!right[Symbol.hasInstance](left) : left instanceof right) ? selector = event.target.selector : targetName = event.target, !targetName && !selector) throw Error('[LitWidget "' + $this.tagName.toLowerCase() + '"] Invalid event target: "' + event.target + '".');
+              var target1 = _this.findTarget(_this.tagName, /*event.target*/ targetName, selector);
               if (target1) {
                   var handler = event.handler;
                   "string" == typeof handler && (handler = _this[handler]), event._handler = function() {
@@ -382,7 +387,10 @@
   /**
    * Decorator to attach a method as an HTML child element event handler
    *
-   * @param {string} target - The name of the target to find the HTML element.
+   * @param {(string|{selector: string})} target - The name of the target or CSS-selector to find the HTML element.
+   *     To use a CSS selector to find a target for attaching an event handler,
+   *     you must pass an object with the `selector` field instead of the target name, for example:
+   *     `@onEvent({selector: '.button'}, 'click')`.
    * @param {string} event - The name of the DOM event to which the handler is attached.
    * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
    * @param options.debounce - Delay to debounce the execution of the event handler,
