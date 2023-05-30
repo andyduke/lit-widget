@@ -48,3 +48,12 @@ HTML markup:
 </w-hello>
 ```
 
+# Binding of child elements
+
+# Listening to events
+
+# Sharing CSS Styles
+
+# Rendering
+
+# Patterns

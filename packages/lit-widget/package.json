@@ -21,7 +21,7 @@
     "lit",
     "lit-element",
     "widget",
-    "web",
+    "web-components",
     "components"
   ],
   "author": "Andy Chentsov",
