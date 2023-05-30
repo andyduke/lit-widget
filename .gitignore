@@ -1,0 +1,5 @@
+.vscode
+_temp/
+_dev/
+build-lit-widget.cmd
+LitWidget.code-workspace

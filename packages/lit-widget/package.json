@@ -1,0 +1,32 @@
+{
+  "name": "lit-widget",
+  "version": "1.0.0-beta.1",
+  "description": "Declarative binding to child elements for LitElement.",
+  "main": "dist/index.js",
+  "module": "dist/module.js",
+  "scripts": {
+    "build": "rollup",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/"
+  },
+  "keywords": [
+    "lit",
+    "lit-element",
+    "widget",
+    "web",
+    "components"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "lit": "^2.7.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-swc": "^0.1.1",
+    "rollup": "^3.23.0"
+  }
+}
