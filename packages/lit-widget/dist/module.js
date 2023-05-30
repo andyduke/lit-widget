@@ -7,26 +7,58 @@
 import { LitElement, html } from 'lit';
 import { templateContent } from 'lit/directives/template-content.js';
 
-function throttle(fn, duration) {
+/**
+ * Throttle the execution of the function.
+ *
+ * You can specify the value in milliseconds as a number or in string format
+ * with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * This can be handy for "resize" or "scroll" events.
+ *
+ * @param {function} fn - The function to throttle.
+ * @param {(Number|string)} delay - Delay value.
+ * @returns {Function} The new throttled function.
+ */ function throttle(fn, delay) {
     let throttlePause;
     return function(...args) {
         throttlePause || (throttlePause = !0, setTimeout(()=>{
             fn.apply(this, args), throttlePause = !1;
-        }, duration));
+        }, duration(delay)));
     };
 }
-function debounce(fn, duration) {
+/**
+ * Debounce the execution of the function.
+ *
+ * You can specify the value in milliseconds as a number or in string format
+ * with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * This can be handy for events such as key presses or "input" in input fields.
+ *
+ * @param {function} fn - The function to debounce.
+ * @param {(Number|string)} delay - Delay value.
+ * @returns {Function} The new debounced function.
+ */ function debounce(fn, delay) {
     let timeoutId;
     function debouncer(...args) {
         debouncer.clear(), timeoutId = setTimeout(()=>{
             timeoutId = null, fn.apply(this, args);
-        }, duration);
+        }, duration(delay));
     }
     return debouncer.clear = function() {
         timeoutId && (clearTimeout(timeoutId), timeoutId = null);
     }, debouncer;
 }
-function duration(value) {
+/**
+ * Duration converter from human-readable form to milliseconds.
+ *
+ * Converts a string like `'<delay>ms'` to milliseconds.
+ * Supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * If a numeric value is passed, it is returned unchanged.
+ *
+ * @param {(string|Number)} value - Duration in human-readable form.
+ * @returns {Number} - Value in milliseconds.
+ */ function duration(value) {
     if ('number' == typeof value) return value;
     if ('string' != typeof value) throw Error(`Invalid duration "${value}".`);
     let duration = parseFloat(value);
@@ -40,9 +72,9 @@ function duration(value) {
  * [Stimulus.js](https://stimulus.hotwired.dev/).
  *
  * To define a widget, subclass LitWidget, specify targets using
- * the @target/@targets decorators or the targets/targetsAll static property,
- * and add event handlers using the @onEvent decorator or
- * the static events property.
+ * the `@target/@targets` decorators or the `static targets/targetsAll` property,
+ * and add event handlers using the `@onEvent` decorator or
+ * the `static events` property.
  *
  * LitWidget unlike LitElement implements the **`render()`** method,
  * which renders all child elements of the widget through `<slot>`.
@@ -101,27 +133,59 @@ function duration(value) {
             let target1 = this.findTarget(this.tagName, event.target);
             if (target1) {
                 let handler = event.handler;
-                'string' == typeof handler && (handler = this[handler]), event._handler = (...args)=>handler.apply(this, args), event.debounce ? event._handler = debounce(event._handler, duration(event.debounce)) : event.throttle && (event._handler = throttle(event._handler, duration(event.throttle))), null != event.wrapper && void 0 !== event.wrapper && (event._handler = event.wrapper.call(this, event._handler, this)), target1.addEventListener(event.event, event._handler);
+                'string' == typeof handler && (handler = this[handler]), event._handler = (...args)=>handler.apply(this, args), event.debounce ? event._handler = debounce(event._handler, event.debounce) : event.throttle && (event._handler = throttle(event._handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (event._handler = event.wrapper.call(this, event._handler, this)), target1.addEventListener(event.event, event._handler);
             } else throw Error(`[LitWidget "${this.tagName.toLowerCase()}"] Event target "${event.target}" not found.`);
         }
     }
     _detachEvents() {
         for (let event of this._events)event._handler && target.addEventListener(event.event, event._handler);
     }
-    findTarget(tagName, targetName, selector = null, converter = null) {
+    /**
+   * findTarget will run `querySelectorAll` against the given widget element, plus
+   * its shadowRoot, returning any the first child that:
+   *
+   *  - Matches the selector of `[data-target~="tag.name"]` where tag is the
+   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
+   *
+   *  - Closest ascendant of the element, that matches the tagname of the
+   *    widget, is the specific instance of the widget itself - in other
+   *    words it is not nested in other widgets of the same type.
+   *
+   * @param {string} tagName - HTML element tag name
+   * @param {string} targetName - Widget property name
+   * @param {string} [selector] - Selector to find element instead of using [data-target]
+   * @param {Function} [converter] - The result converter can be used to convert the tag, for example using templateContent
+   * @returns {(HTMLElement|any|null)} The HTML element found, or null if no matching element was found
+   */ findTarget(tagName, targetName, selector = null, converter = null) {
         let convert = (value)=>converter ? converter(value) : value, tag = tagName.toLowerCase();
         if (selector) {
             for (let el of this.querySelectorAll(selector))if (el.closest(tag) === this) return convert(el);
         }
-        if (this.renderRoot) {
-            for (let el of this.renderRoot.querySelectorAll(`[data-target~="${tag}.${targetName}"]`))if (!el.closest(tag)) return convert(el);
+        if (this.shadowRoot) {
+            for (let el of this.shadowRoot.querySelectorAll(`[data-target~="${tag}.${targetName}"]`))if (!el.closest(tag)) return convert(el);
         }
         for (let el of this.querySelectorAll(`[data-target~="${tag}.${targetName}"]`))if (el.closest(tag) === this) return convert(el);
     }
-    findTargets(tagName, targetName, selector = null, converter = null) {
+    /**
+   * findTargets will run `querySelectorAll` against the given widget element, plus
+   * its shadowRoot, returning all matching child elements that are:
+   *
+   *  - Matches the selector of `[data-targets~="tag.name"]` where tag is the
+   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
+   *
+   *  - Closest ascendant of the element, that matches the tagname of the
+   *    widget, is the specific instance of the widget itself - in other
+   *    words it is not nested in other widgets of the same type.
+   *
+   * @param {string} tagName - HTML element tag name
+   * @param {string} targetName - Widget property name
+   * @param {string} [selector] - Selector to find elements instead of using [data-targets]
+   * @param {Function} [converter] - The result converter can be used to convert the result tags, for example using templateContent
+   * @returns {HTMLElement[]} The HTML elements found
+   */ findTargets(tagName, targetName, selector = null, converter = null) {
         let convert = (value)=>converter ? converter(value) : value, tag = tagName.toLowerCase(), targets = [];
         if (selector) for (let el of this.querySelectorAll(selector))el.closest(tag) === this && targets.push(convert(el));
-        if (this.renderRoot) for (let el of this.renderRoot.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`))el.closest(tag) || targets.push(convert(el));
+        if (this.shadowRoot) for (let el of this.shadowRoot.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`))el.closest(tag) || targets.push(convert(el));
         for (let el of this.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`))el.closest(tag) === this && targets.push(convert(el));
         return targets;
     }
@@ -137,8 +201,13 @@ function duration(value) {
             if (void 0 === this._findCache && (this._findCache = {}), this._findCache[target1]) return this._findCache[target1];
             {
                 var _this__findCache, _;
-                let targetElement = null != (_ = (_this__findCache = this._findCache)[target1]) ? _ : _this__findCache[target1] = this.findTarget(this.tagName, target1, options.selector, options.template ? (value)=>templateContent(value) : null);
-                return null == targetElement ? console.error(`[LitWidget "${klass.name}"] Target "${target1}" not found.`) : this._findCache[target1] = targetElement, targetElement;
+                let targetElement = null != (_ = (_this__findCache = this._findCache)[target1]) ? _ : _this__findCache[target1] = this.findTarget(this.tagName, target1, options.selector);
+                if (null == targetElement) console.error(`[LitWidget "${klass.name}"] Target "${target1}" not found.`);
+                else {
+                    let convertTemplate = !0 === options.template || 'template' == targetElement.tagName.toLowerCase() && !1 !== options.template;
+                    convertTemplate && (targetElement = templateContent(targetElement)), this._findCache[target1] = targetElement;
+                }
+                return targetElement;
             }
         }
     });
@@ -147,12 +216,31 @@ function duration(value) {
         configurable: !0,
         get () {
             var _this__findCache, _;
-            return void 0 === this._findCache && (this._findCache = {}), null != (_ = (_this__findCache = this._findCache)[target1]) ? _ : _this__findCache[target1] = this.findTargets(this.tagName, target1, options.selector, options.template ? (value)=>templateContent(value) : null);
+            return void 0 === this._findCache && (this._findCache = {}), null != (_ = (_this__findCache = this._findCache)[target1]) ? _ : _this__findCache[target1] = this.findTargets(this.tagName, target1, options.selector);
         }
     });
 });
 
-function target$1({ selector  } = {}, name = null) {
+/**
+ * Decorator to bind a property to a child HTML element
+ *
+ * By default, it binds to a child element with the `data-target` attribute equal to
+ * the component's tag name and the name of the property connected by a dot,
+ * like this - `tag-name.property-name`.
+ *
+ * The element is first looked up in renderRoot and then in the component tag itself.
+ *
+ * If a CSS selector is specified, the element with the matching selector
+ * is searched for only among the child elements of the component tag.
+ *
+ * If the element being bound is the `<template>` tag, then by default
+ * automatic conversion takes place using the Lit's directive `templateContent`.
+ * To disable this behavior - you must specify `template: false`.
+ *
+ * @param {{selector: string, template: Boolean}} options - Optional parameters for binding.
+ * @param {string} options.selector - CSS selector to find the element to which the property will be bound.
+ * @param {Boolean} options.template - Controls how the `<template>` tag is converted when bound.
+ */ function target$1({ selector  } = {}, name = null) {
     let wrapper = function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
@@ -166,7 +254,21 @@ function target$1({ selector  } = {}, name = null) {
         wrapper(instance, name);
     }
 }
-function targets({ selector  } = {}, name = null) {
+/**
+ * Decorator to bind a property to an array of HTML child elements
+ *
+ * By default, it binds to an array of child elements with a `data-targets`
+ * attribute equal to the component's tag name and the name of the property
+ * connected by a dot, like this - `tag-name.property-name`.
+ *
+ * Elements are looked up in renderRoot and in the component tag itself.
+ *
+ * If a CSS selector is specified, all elements with the matching selector
+ * are searched only among the child elements of the component tag.
+ *
+ * @param {{selector: string}} options - Optional parameters for binding.
+ * @param {string} options.selector - CSS selector to find the elements to which the property will be bound.
+ */ function targets({ selector  } = {}, name = null) {
     let wrapper = function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
@@ -180,7 +282,26 @@ function targets({ selector  } = {}, name = null) {
         wrapper(instance, name);
     }
 }
-function onEvent(target, event, { debounce , throttle , wrapper  } = {}) {
+/**
+ * Decorator to attach a method as an HTML child element event handler
+ *
+ * @param {string} target - The name of the target to find the HTML element.
+ * @param {string} event - The name of the DOM event to which the handler is attached.
+ * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
+ * @param options.debounce - Delay to debounce the execution of the event handler,
+ *     you can specify the value in milliseconds as a number or in string format
+ *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *     This can be handy for events such as key presses or "input" in input fields.
+ * @param options.throttle - Delay to throttle the execution of the event handler,
+ *     you can specify the value in milliseconds as a number or in string format
+ *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *     This can be handy for "resize" or "scroll" events.
+ * @param options.wrapper - Wrapper function to apply additional decorators to the event handler;
+ *     can be useful for example to apply a debounce decorator with a delay set at runtime:
+ *     `onEvent(..., wrapper: (fn, self) => debounce(fn, self.delay) )`.
+ *     The first parameter in the wrapper is the event handler method,
+ *     the second is a reference to the class instance.
+ */ function onEvent(target, event, { debounce , throttle , wrapper  } = {}) {
     return function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);

@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit';
 import { templateContent } from 'lit/directives/template-content.js';
-import { throttle, debounce, duration } from './debounce';
+import { throttle, debounce } from './debounce';
 
 /**
  * Declarative binding to child elements for [LitElement](https://lit.dev/)
@@ -8,9 +8,9 @@ import { throttle, debounce, duration } from './debounce';
  * [Stimulus.js](https://stimulus.hotwired.dev/).
  *
  * To define a widget, subclass LitWidget, specify targets using
- * the @target/@targets decorators or the targets/targetsAll static property,
- * and add event handlers using the @onEvent decorator or
- * the static events property.
+ * the `@target/@targets` decorators or the `static targets/targetsAll` property,
+ * and add event handlers using the `@onEvent` decorator or
+ * the `static events` property.
  *
  * LitWidget unlike LitElement implements the **`render()`** method,
  * which renders all child elements of the widget through `<slot>`.
@@ -107,9 +107,9 @@ export class LitWidget extends LitElement {
         event._handler = (...args) => handler.apply(this, args);
 
         if (event.debounce) {
-          event._handler = debounce(event._handler, duration(event.debounce));
+          event._handler = debounce(event._handler, event.debounce);
         } else if (event.throttle) {
-          event._handler = throttle(event._handler, duration(event.throttle));
+          event._handler = throttle(event._handler, event.throttle);
         }
 
         if (event['wrapper'] != null && typeof event['wrapper'] !== 'undefined') {
@@ -131,6 +131,23 @@ export class LitWidget extends LitElement {
     }
   }
 
+  /**
+   * findTarget will run `querySelectorAll` against the given widget element, plus
+   * its shadowRoot, returning any the first child that:
+   *
+   *  - Matches the selector of `[data-target~="tag.name"]` where tag is the
+   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
+   *
+   *  - Closest ascendant of the element, that matches the tagname of the
+   *    widget, is the specific instance of the widget itself - in other
+   *    words it is not nested in other widgets of the same type.
+   *
+   * @param {string} tagName - HTML element tag name
+   * @param {string} targetName - Widget property name
+   * @param {string} [selector] - Selector to find element instead of using [data-target]
+   * @param {Function} [converter] - The result converter can be used to convert the tag, for example using templateContent
+   * @returns {(HTMLElement|any|null)} The HTML element found, or null if no matching element was found
+   */
   findTarget(tagName, targetName, selector = null, converter = null) {
     let convert = (value) => !!converter ? converter(value) : value;
     const tag = tagName.toLowerCase();
@@ -143,8 +160,8 @@ export class LitWidget extends LitElement {
       }
     }
 
-    if (this.renderRoot) {
-      for (const el of this.renderRoot.querySelectorAll(`[data-target~="${tag}.${targetName}"]`)) {
+    if (this.shadowRoot) {
+      for (const el of this.shadowRoot.querySelectorAll(`[data-target~="${tag}.${targetName}"]`)) {
         if (!el.closest(tag)) return convert(el);
       }
     }
@@ -154,6 +171,23 @@ export class LitWidget extends LitElement {
     }
   }
 
+  /**
+   * findTargets will run `querySelectorAll` against the given widget element, plus
+   * its shadowRoot, returning all matching child elements that are:
+   *
+   *  - Matches the selector of `[data-targets~="tag.name"]` where tag is the
+   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
+   *
+   *  - Closest ascendant of the element, that matches the tagname of the
+   *    widget, is the specific instance of the widget itself - in other
+   *    words it is not nested in other widgets of the same type.
+   *
+   * @param {string} tagName - HTML element tag name
+   * @param {string} targetName - Widget property name
+   * @param {string} [selector] - Selector to find elements instead of using [data-targets]
+   * @param {Function} [converter] - The result converter can be used to convert the result tags, for example using templateContent
+   * @returns {HTMLElement[]} The HTML elements found
+   */
   findTargets(tagName, targetName, selector = null, converter = null) {
     let convert = (value) => !!converter ? converter(value) : value;
     const tag = tagName.toLowerCase();
@@ -167,8 +201,8 @@ export class LitWidget extends LitElement {
       }
     }
 
-    if (this.renderRoot) {
-      for (const el of this.renderRoot.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`)) {
+    if (this.shadowRoot) {
+      for (const el of this.shadowRoot.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`)) {
         if (!el.closest(tag)) {
           targets.push(convert(el));
         }
@@ -202,10 +236,14 @@ LitWidget.addInitializer((instance) => {
           if (this._findCache[target]) {
             return this._findCache[target];
           } else {
-            const targetElement = this._findCache[target] ??= this.findTarget(this.tagName, target, options.selector, options.template ? (value) => templateContent(value) : null);
+            let targetElement = this._findCache[target] ??= this.findTarget(this.tagName, target, options.selector);
             if (targetElement == null) {
               console.error(`[LitWidget "${klass.name}"] Target "${target}" not found.`);
             } else {
+              const convertTemplate = (options.template === true) || ((targetElement.tagName.toLowerCase() == 'template') && (options.template !== false));
+              if (convertTemplate) {
+                targetElement = templateContent(targetElement);
+              }
               this._findCache[target] = targetElement;
             }
             return targetElement;
@@ -224,7 +262,7 @@ LitWidget.addInitializer((instance) => {
           if (typeof this._findCache === 'undefined') {
             this._findCache = {};
           }
-          return this._findCache[target] ??= this.findTargets(this.tagName, target, options.selector, options.template ? (value) => templateContent(value) : null);
+          return this._findCache[target] ??= this.findTargets(this.tagName, target, options.selector);
         }
       });
     }

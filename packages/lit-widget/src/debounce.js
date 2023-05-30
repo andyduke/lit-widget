@@ -1,5 +1,16 @@
-
-export function throttle(fn, duration) {
+/**
+ * Throttle the execution of the function.
+ *
+ * You can specify the value in milliseconds as a number or in string format
+ * with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * This can be handy for "resize" or "scroll" events.
+ *
+ * @param {function} fn - The function to throttle.
+ * @param {(Number|string)} delay - Delay value.
+ * @returns {Function} The new throttled function.
+ */
+export function throttle(fn, delay) {
   let throttlePause;
 
   function throttler(...args) {
@@ -9,13 +20,25 @@ export function throttle(fn, duration) {
     setTimeout(() => {
       fn.apply(this, args);
       throttlePause = false;
-    }, duration);
+    }, duration(delay));
   }
 
   return throttler;
 }
 
-export function debounce(fn, duration) {
+/**
+ * Debounce the execution of the function.
+ *
+ * You can specify the value in milliseconds as a number or in string format
+ * with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * This can be handy for events such as key presses or "input" in input fields.
+ *
+ * @param {function} fn - The function to debounce.
+ * @param {(Number|string)} delay - Delay value.
+ * @returns {Function} The new debounced function.
+ */
+export function debounce(fn, delay) {
   let timeoutId;
 
   function debouncer(...args) {
@@ -25,7 +48,7 @@ export function debounce(fn, duration) {
       timeoutId = null;
 
       fn.apply(this, args);
-    }, duration);
+    }, duration(delay));
   }
 
   debouncer.clear = function() {
@@ -38,6 +61,17 @@ export function debounce(fn, duration) {
   return debouncer;
 }
 
+/**
+ * Duration converter from human-readable form to milliseconds.
+ *
+ * Converts a string like `'<delay>ms'` to milliseconds.
+ * Supported suffixes: ms - milliseconds, s - seconds, m - minutes.
+ *
+ * If a numeric value is passed, it is returned unchanged.
+ *
+ * @param {(string|Number)} value - Duration in human-readable form.
+ * @returns {Number} - Value in milliseconds.
+ */
 export function duration(value) {
   if (typeof value === 'number') {
     return value;
