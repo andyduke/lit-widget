@@ -80,10 +80,11 @@ export function targets({ selector } = {}, name = null) {
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * @param {(string|{selector: string})} target - The name of the target or CSS-selector to find the HTML element.
+ * @param {(string|{selector: string}|Window|Document|HTMLElement)} target - The name of the target or CSS-selector to find the HTML element.
  *     To use a CSS selector to find a target for attaching an event handler,
  *     you must pass an object with the `selector` field instead of the target name, for example:
  *     `@onEvent({selector: '.button'}, 'click')`.
+ *     You can also pass an existing HTML element or window to attach an event handler to document.body or window for example.
  * @param {string} event - The name of the DOM event to which the handler is attached.
  * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
  * @param options.debounce - Delay to debounce the execution of the event handler,

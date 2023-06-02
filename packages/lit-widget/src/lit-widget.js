@@ -23,6 +23,7 @@ import { throttle, debounce } from './debounce';
  *
  * TODO: Describe "static targets/targetsAll"
  * TODO: Describe "static events"
+ * TODO: Describe defaultValues pattern
  */
 export class LitWidget extends LitElement {
 
@@ -38,6 +39,22 @@ export class LitWidget extends LitElement {
 
   render() {
     return html`<slot></slot>`;
+  }
+
+  static defaultValues = {}
+
+  get defaultValues() {
+    if (this._defaultValues != null) {
+      return this._defaultValues;
+    }
+
+    const parentDefaultValues = (this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+    this._defaultValues = {
+      ...parentDefaultValues,
+      ...this.constructor.defaultValues,
+    };
+
+    return this._defaultValues;
   }
 
   /**
@@ -98,24 +115,34 @@ export class LitWidget extends LitElement {
 
   _attachEvents() {
     for (const event of this._events) {
+      const eventName = event.event;
+      // TODO: If eventName is function -> handle as preset
+      //       eventName maybe `{eventName, isMatch: fn(event): bool}`
+
       if (event.debounce && event.throttle) {
-        throw new Error(`[LitWidget "${$this.tagName.toLowerCase()}"] For the event "${event.event}", debounce and throttle are specified, you can specify only one thing.`);
+        throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] For the event "${eventName}", debounce and throttle are specified, you can specify only one thing.`);
       }
 
-      let targetName;
-      let selector;
-
-      if (event.target instanceof Object) {
-        selector = event.target['selector'];
+      let target;
+      if ((event.target instanceof HTMLElement) || (event.target instanceof Document) || (event.target instanceof Window)) {
+        target = event.target;
       } else {
-        targetName = event.target;
+        let targetName;
+        let selector;
+
+        if (event.target instanceof Object) {
+          selector = event.target['selector'];
+        } else {
+          targetName = event.target;
+        }
+
+        if (!targetName && !selector) {
+          throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] Invalid event target: "${event.target}".`);
+        }
+
+        target = this.findTarget(this.tagName, targetName, selector);
       }
 
-      if (!targetName && !selector) {
-        throw new Error(`[LitWidget "${$this.tagName.toLowerCase()}"] Invalid event target: "${event.target}".`);
-      }
-
-      const target = this.findTarget(this.tagName, /*event.target*/targetName, selector);
       if (target) {
         let handler = event.handler;
         if (typeof handler === 'string') handler = this[handler];
@@ -132,7 +159,9 @@ export class LitWidget extends LitElement {
           event._handler = event.wrapper.call(this, event._handler, this);
         }
 
-        target.addEventListener(event.event, event._handler);
+        // TODO: if eventName is preset -> wrap event._handler with `(event) => eventName.isMatch(event) ? event._handler : null`
+
+        target.addEventListener(eventName, event._handler);
       } else {
         throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] Event target "${event.target}" not found.`);
       }
