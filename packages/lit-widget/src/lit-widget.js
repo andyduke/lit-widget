@@ -77,22 +77,7 @@ export class LitWidget extends LitWidgetBase {
     return this._defaultValues;
   }
 
-  // #events = new EventsController(this, this.events);
   #events;
-  // events = [];
-
-  // constructor() {
-  //   super();
-  //   console.log(this.constructor.name, 'Init [1]', this.events);
-  // }
-
-  /*
-  constructor() {
-    super();
-    this.#prepareEvents();
-    this.#events = new EventsController(this, this.events);
-  }
-  */
 
   #prepareEvents() {
     const events = [
@@ -100,12 +85,9 @@ export class LitWidget extends LitWidgetBase {
       ...this.events,
     ];
 
-    // console.log(this.constructor.name, 'Init [4]', events);
-
   	const eventsDefs = events.map((event, index) => {
       return {id: index, ...event};
     });
-    // console.log('[1]', eventsDefs);
 
     Object.defineProperty(this, 'events', {
     	configurable: true,
@@ -170,88 +152,6 @@ export class LitWidget extends LitWidgetBase {
       this._findCache = {};
     }
   }
-
-  /*
-  connectedCallback() {
-    super.connectedCallback();
-
-    setTimeout(() => this._attachEvents());
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-
-    setTimeout(() => this._detachEvents());
-  }
-
-  get _events() {
-    const klass = Object.getPrototypeOf(this).constructor;
-    return klass.events || [];
-  }
-
-  _attachEvents() {
-    for (const event of this._events) {
-      const eventName = event.event;
-      // TODO: If eventName is function -> handle as preset
-      //       eventName maybe `{eventName, isMatch: fn(event): bool}`
-
-      if (event.debounce && event.throttle) {
-        throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] For the event "${eventName}", debounce and throttle are specified, you can specify only one thing.`);
-      }
-
-      let target;
-      if ((event.target instanceof HTMLElement) || (event.target instanceof Document) || (event.target instanceof Window)) {
-        target = event.target;
-      } else {
-        let targetName;
-        let selector;
-
-        if (event.target instanceof Object) {
-          selector = event.target['selector'];
-        } else {
-          targetName = event.target;
-        }
-
-        if (!targetName && !selector) {
-          throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] Invalid event target: "${event.target}".`);
-        }
-
-        target = this.findTarget(this.tagName, targetName, selector);
-      }
-
-      if (target) {
-        let handler = event.handler;
-        if (typeof handler === 'string') handler = this[handler];
-
-        event._handler = (...args) => handler.apply(this, args);
-
-        if (event.debounce) {
-          event._handler = debounce(event._handler, event.debounce);
-        } else if (event.throttle) {
-          event._handler = throttle(event._handler, event.throttle);
-        }
-
-        if (event['wrapper'] != null && typeof event['wrapper'] !== 'undefined') {
-          event._handler = event.wrapper.call(this, event._handler, this);
-        }
-
-        // TODO: if eventName is preset -> wrap event._handler with `(event) => eventName.isMatch(event) ? event._handler : null`
-
-        target.addEventListener(eventName, event._handler);
-      } else {
-        throw new Error(`[LitWidget "${this.tagName.toLowerCase()}"] Event target "${event.target}" not found.`);
-      }
-    }
-  }
-
-  _detachEvents() {
-    for (const event of this._events) {
-      if (!!event._handler) {
-        target.addEventListener(event.event, event._handler);
-      }
-    }
-  }
-  */
 
 }
 

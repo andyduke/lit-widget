@@ -71,11 +71,9 @@
           return "[" + this.targetsAttribute + '~="' + tag + "." + targetName + '"]';
       }, _proto.targetMatches = function(el, tagName, targetName) {
           var selector = this.createTargetSelector(tagName, targetName);
-          // console.log('targetMatches:', el.matches(selector), selector, el);
           return el.matches(selector);
       }, _proto.targetsMatches = function(el, tagName, targetName) {
           var selector = this.createTargetsSelector(tagName, targetName);
-          // console.log('targetsMatches:', el.matches(selector), selector, el);
           return el.matches(selector);
       }, /**
      * findTarget will run `querySelectorAll` against the given widget element, plus
@@ -465,37 +463,25 @@
    *
    */ var EventsController = function() {
       function EventsController(host, events) {
-          // console.log('[2]', events);
           if (this.listeners = new ListenersMap(), !_instanceof$1(host, LitWidgetBase)) throw Error("[LitWidget.EventsController]: The host is not an instance of the LitWidget class.");
           this.host = host, this.tagName = this.host.tagName.toLowerCase(), this.events = this.prepareEvents(events), // console.log('Events:', this.events);
           this.host.addController(this);
       }
       var _proto = EventsController.prototype;
       return _proto.prepareEvents = function(events) {
-          // let targetedEvents = new Set();
           for(var _step, targetedEvents = new Map(), _iterator = _create_for_of_iterator_helper_loose$1(events); !(_step = _iterator()).done;){
               var event = _step.value, target = void 0;
               if (_instanceof$1(event.target, HTMLElement) || _instanceof$1(event.target, Document) || _instanceof$1(event.target, Window)) target = {
                   type: "element",
                   element: event.target
               };
-              else // if (typeof event.target !== 'undefined') {
-              //   target = {type: 'target', target: event.target, handler: event.handler};
-              // } else if (typeof event.selector !== 'undefined') {
-              //   target = {type: 'selector', selector: event.selector, handler: event.handler};
-              // } else {
-              //   throw new Error(`[LitWidget.EventsController]: Invalid event definition: ${JSON.stringify(event)}.`);
-              // }
-              /*if ((typeof event.target === 'object') && (typeof event.target['selector'] === 'string')) {
-            target = {type: 'selector', selector: event.target['selector']};
-          } else*/ if ("string" == typeof event.target) target = {
+              else if ("string" == typeof event.target) target = {
                   type: "target",
                   target: event.target,
                   selector: event.selector
               };
               else throw Error("[LitWidget.EventsController]: Invalid event definition: " + JSON.stringify(event) + ".");
               targetedEvents.set(target, event);
-          // targetedEvents.add(target);
           }
           // console.log('Targeted events:', targetedEvents);
           return targetedEvents;
@@ -523,7 +509,7 @@
               for(var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
               return event.handler.apply(_this.host, args);
           };
-          // Handle delegated event
+          // Handling delegated event
           if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector) {
               var prevHandler = handler;
               handler = function(e) {
@@ -547,33 +533,18 @@
                       this.listeners.set(eventInfo.element, key, eventHandler);
                   }
               }
-          /*
-        const handlers = this.listeners.get(eventInfo.element) || [];
-        handlers.push(eventHandler);
-        this.listeners.set(eventInfo.element, handlers);
-        */ }
+          }
       }, _proto.bindEvents = function(el, oldAttrValue) {
           // console.log('Bind actions:', el);
           // for (const event of this.events) {
           for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(this.events); !(_step = _iterator()).done;){
               var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
-              // if (eventInfo.type == 'element') continue;
               if ("target" === eventInfo.type) {
-                  // console.log('Bind [1]:', el, eventInfo, event);
-                  // const isSelector = (eventInfo.type == 'selector');
-                  // const isMatch = isSelector
-                  //   ? el.matches(event.selector)
-                  //   : this.host.targetMatches(el, this.tagName, event.target) || this.host.targetsMatches(el, this.tagName, event.target);
                   var isMatch = this.host.targetMatches(el, this.tagName, eventInfo.target) || this.host.targetsMatches(el, this.tagName, eventInfo.target), isOldMatch = !isMatch && oldAttrValue == this.host.createTargetPath(this.tagName, eventInfo.target), key = {
                       element: el,
                       id: event.id
                   };
-                  // console.log('Bind [2]', key, 'is match =', isMatch, 'is old match =', isOldMatch, '*', this.tagName, eventInfo.target, el, event);
-                  // console.log('         key:', JSON.stringify(key));
-                  // console.log('         has key:', this.listeners.has(el, key));
-                  // TODO: Check selectors???
                   if (isMatch) {
-                      // TODO: Multiple handlers via event.id?
                       if (this.listeners.has(el, key) || el.getRootNode() === this.host.shadowRoot && el.closest(this.tagName)) continue;
                       // Create event handler
                       var eventHandler = this.createHandler(event);
@@ -585,47 +556,11 @@
                       // console.log('Bind [3] (-):', key, el, event);
                       // Remove listeners if attribute removed
                       var handler = this.listeners.get(el, key);
-                      null == handler || handler.removeListener(el), // console.log('   *', handler);
-                      // Remove element from listeners map
+                      null == handler || handler.removeListener(el), // Remove element from listeners map
                       this.listeners.delete(el, key);
                   }
               }
-          /*
-        if (isMatch) {
-          console.log('Bind [3]:', el, event);
-
-          // Skip nested (Shadow DOM Only!)
-          const isShadowNode = el.getRootNode() === this.host.shadowRoot;
-          if (isShadowNode && el.closest(this.tagName)) continue;
-
-          // console.log('Bind [3]:', el, event);
-
-          // Create event handler
-          const eventHandler = this.createHandler(event);
-
-          // Add listener to element
-          eventHandler.addListener(el);
-
-          // Store element's event handler
-          const handlers = this.listeners.get(el) || [];
-          handlers.push(eventHandler);
-          this.listeners.set(el, handlers);
-        } else if (isOldMatch && this.listeners.has(el)) {
-          console.log('Bind [3]: Remove element listeners,', el);
-
-          // TODO: Remove only oldAttrValue listener
-
-          // Remove listeners if attribute removed
-          const handlers = this.listeners.get(el) || [];
-          for (const handler of handlers) {
-            handler.removeListener(el);
           }
-
-          // Remove element from listeners map
-          this.listeners.delete(el);
-        }
-        */ }
-      // console.log('Listeners:', this.listeners);
       }, _proto.bindTargetElements = function(root) {
           // Bind controller's targets
           for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(root.querySelectorAll("[" + this.host.targetAttribute + "],[" + this.host.targetsAttribute + "]")); !(_step = _iterator()).done;){
@@ -741,19 +676,7 @@
           return data;
       }, data;
   }
-  var // #events = new EventsController(this, this.events);
-  _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), // events = [];
-  // constructor() {
-  //   super();
-  //   console.log(this.constructor.name, 'Init [1]', this.events);
-  // }
-  /*
-    constructor() {
-      super();
-      this.#prepareEvents();
-      this.#events = new EventsController(this, this.events);
-    }
-    */ _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
+  var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
   /**
    * Declarative binding to child elements for [LitElement](https://lit.dev/)
    * like [Github/Catalyst](https://catalyst.rocks/) and
@@ -863,13 +786,11 @@
       ], _defineProperties(LitWidget.prototype, protoProps), LitWidget);
   }(LitWidgetBase);
   function prepareEvents() {
-      // console.log(this.constructor.name, 'Init [4]', events);
       var eventsDefs = _to_consumable_array(this._events).concat(_to_consumable_array(this.events)).map(function(event, index) {
           return _extends({
               id: index
           }, event);
       });
-      // console.log('[1]', eventsDefs);
       Object.defineProperty(this, "events", {
           configurable: !0,
           get: function() {

@@ -29,8 +29,6 @@ export class EventsController {
   listeners = new ListenersMap();
 
   constructor(host, events) {
-    // console.log('[2]', events);
-
     if (!(host instanceof LitWidgetBase)) {
       throw new Error('[LitWidget.EventsController]: The host is not an instance of the LitWidget class.');
     }
@@ -46,24 +44,13 @@ export class EventsController {
 
   prepareEvents(events) {
     let targetedEvents = new Map();
-    // let targetedEvents = new Set();
 
     for (const event of events) {
       let target;
       if ((event.target instanceof HTMLElement) || (event.target instanceof Document) || (event.target instanceof Window)) {
         target = {type: 'element', element: event.target};
       } else {
-        // if (typeof event.target !== 'undefined') {
-        //   target = {type: 'target', target: event.target, handler: event.handler};
-        // } else if (typeof event.selector !== 'undefined') {
-        //   target = {type: 'selector', selector: event.selector, handler: event.handler};
-        // } else {
-        //   throw new Error(`[LitWidget.EventsController]: Invalid event definition: ${JSON.stringify(event)}.`);
-        // }
-
-        /*if ((typeof event.target === 'object') && (typeof event.target['selector'] === 'string')) {
-          target = {type: 'selector', selector: event.target['selector']};
-        } else*/ if (typeof event.target === 'string') {
+        if (typeof event.target === 'string') {
           target = {type: 'target', target: event.target, selector: event.selector};
         } else {
           throw new Error(`[LitWidget.EventsController]: Invalid event definition: ${JSON.stringify(event)}.`);
@@ -71,7 +58,6 @@ export class EventsController {
       }
 
       targetedEvents.set(target, event);
-      // targetedEvents.add(target);
     }
 
     // console.log('Targeted events:', targetedEvents);
@@ -110,7 +96,7 @@ export class EventsController {
     // Add listeners if attribute added
     let handler = (...args) => event.handler.apply(this.host, args);
 
-    // TODO: Handle debounce, etc...
+    // Handling debounce, etc...
     if (event.debounce) {
       handler = debounce(handler, event.debounce);
     } else if (event.throttle) {
@@ -120,7 +106,7 @@ export class EventsController {
       handler = event.wrapper.call(this.host, handler/*, this.host*/);
     }
 
-    // Handle delegated event
+    // Handling delegated event
     if (typeof event.selector == 'string') {
       const prevHandler = handler;
       handler = (e) => {
@@ -153,11 +139,6 @@ export class EventsController {
 
       // Store element's event handler
       this.listeners.set(eventInfo.element, key, eventHandler);
-      /*
-      const handlers = this.listeners.get(eventInfo.element) || [];
-      handlers.push(eventHandler);
-      this.listeners.set(eventInfo.element, handlers);
-      */
     }
   }
 
@@ -166,29 +147,13 @@ export class EventsController {
 
     // for (const event of this.events) {
     for (const [eventInfo, event] of this.events) {
-      // if (eventInfo.type == 'element') continue;
       if (eventInfo.type !== 'target') continue;
-
-      // console.log('Bind [1]:', el, eventInfo, event);
-
-      // const isSelector = (eventInfo.type == 'selector');
-      // const isMatch = isSelector
-      //   ? el.matches(event.selector)
-      //   : this.host.targetMatches(el, this.tagName, event.target) || this.host.targetsMatches(el, this.tagName, event.target);
 
       const isMatch = this.host.targetMatches(el, this.tagName, eventInfo.target) || this.host.targetsMatches(el, this.tagName, eventInfo.target);
       const isOldMatch = !isMatch && (oldAttrValue == this.host.createTargetPath(this.tagName, eventInfo.target));
-      // const key = {element: el, target: eventInfo};
       const key = {element: el, id: event.id};
 
-      // console.log('Bind [2]', key, 'is match =', isMatch, 'is old match =', isOldMatch, '*', this.tagName, eventInfo.target, el, event);
-      // console.log('         key:', JSON.stringify(key));
-      // console.log('         has key:', this.listeners.has(el, key));
-
-      // TODO: Check selectors???
-
       if (isMatch) {
-        // TODO: Multiple handlers via event.id?
         if (this.listeners.has(el, key)) continue;
 
         // console.log('Bind [3] (+):', key, el, event);
@@ -214,50 +179,10 @@ export class EventsController {
         const handler = this.listeners.get(el, key);
         handler?.removeListener(el);
 
-        // console.log('   *', handler);
-
         // Remove element from listeners map
         this.listeners.delete(el, key);
       }
-
-      /*
-      if (isMatch) {
-        console.log('Bind [3]:', el, event);
-
-        // Skip nested (Shadow DOM Only!)
-        const isShadowNode = el.getRootNode() === this.host.shadowRoot;
-        if (isShadowNode && el.closest(this.tagName)) continue;
-
-        // console.log('Bind [3]:', el, event);
-
-        // Create event handler
-        const eventHandler = this.createHandler(event);
-
-        // Add listener to element
-        eventHandler.addListener(el);
-
-        // Store element's event handler
-        const handlers = this.listeners.get(el) || [];
-        handlers.push(eventHandler);
-        this.listeners.set(el, handlers);
-      } else if (isOldMatch && this.listeners.has(el)) {
-        console.log('Bind [3]: Remove element listeners,', el);
-
-        // TODO: Remove only oldAttrValue listener
-
-        // Remove listeners if attribute removed
-        const handlers = this.listeners.get(el) || [];
-        for (const handler of handlers) {
-          handler.removeListener(el);
-        }
-
-        // Remove element from listeners map
-        this.listeners.delete(el);
-      }
-      */
     }
-
-    // console.log('Listeners:', this.listeners);
   }
 
   bindTargetElements(root) {
@@ -298,8 +223,8 @@ export class EventsController {
           childList: true,
           subtree: true,
           attributeFilter: [
-            this.host.targetAttribute, this.host.targetsAttribute,
-            // TODO: Observe class?
+            this.host.targetAttribute,
+            this.host.targetsAttribute,
           ],
           attributeOldValue : true,
         }

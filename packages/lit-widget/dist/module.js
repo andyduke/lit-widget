@@ -28,12 +28,10 @@ class LitWidgetBase extends LitElement {
     }
     targetMatches(el, tagName, targetName) {
         let selector = this.createTargetSelector(tagName, targetName);
-        // console.log('targetMatches:', el.matches(selector), selector, el);
         return el.matches(selector);
     }
     targetsMatches(el, tagName, targetName) {
         let selector = this.createTargetsSelector(tagName, targetName);
-        // console.log('targetsMatches:', el.matches(selector), selector, el);
         return el.matches(selector);
     }
     /**
@@ -212,30 +210,19 @@ class EventHandler {
  */ class EventsController {
     prepareEvents(events) {
         let targetedEvents = new Map();
-        // let targetedEvents = new Set();
         for (let event of events){
             let target;
             if (event.target instanceof HTMLElement || event.target instanceof Document || event.target instanceof Window) target = {
                 type: 'element',
                 element: event.target
             };
-            else // if (typeof event.target !== 'undefined') {
-            //   target = {type: 'target', target: event.target, handler: event.handler};
-            // } else if (typeof event.selector !== 'undefined') {
-            //   target = {type: 'selector', selector: event.selector, handler: event.handler};
-            // } else {
-            //   throw new Error(`[LitWidget.EventsController]: Invalid event definition: ${JSON.stringify(event)}.`);
-            // }
-            /*if ((typeof event.target === 'object') && (typeof event.target['selector'] === 'string')) {
-          target = {type: 'selector', selector: event.target['selector']};
-        } else*/ if ('string' == typeof event.target) target = {
+            else if ('string' == typeof event.target) target = {
                 type: 'target',
                 target: event.target,
                 selector: event.selector
             };
             else throw Error(`[LitWidget.EventsController]: Invalid event definition: ${JSON.stringify(event)}.`);
             targetedEvents.set(target, event);
-        // targetedEvents.add(target);
         }
         // console.log('Targeted events:', targetedEvents);
         return targetedEvents;
@@ -261,7 +248,7 @@ class EventHandler {
     createHandler(event) {
         // Add listeners if attribute added
         let handler = (...args)=>event.handler.apply(this.host, args);
-        // Handle delegated event
+        // Handling delegated event
         if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), 'string' == typeof event.selector) {
             let prevHandler = handler;
             handler = (e)=>{
@@ -286,33 +273,18 @@ class EventHandler {
             // Add listener to element
             eventHandler.addListener(eventInfo.element), // Store element's event handler
             this.listeners.set(eventInfo.element, key, eventHandler);
-        /*
-      const handlers = this.listeners.get(eventInfo.element) || [];
-      handlers.push(eventHandler);
-      this.listeners.set(eventInfo.element, handlers);
-      */ }
+        }
     }
     bindEvents(el, oldAttrValue) {
         // console.log('Bind actions:', el);
         // for (const event of this.events) {
         for (let [eventInfo, event] of this.events){
-            // if (eventInfo.type == 'element') continue;
             if ('target' !== eventInfo.type) continue;
-            // console.log('Bind [1]:', el, eventInfo, event);
-            // const isSelector = (eventInfo.type == 'selector');
-            // const isMatch = isSelector
-            //   ? el.matches(event.selector)
-            //   : this.host.targetMatches(el, this.tagName, event.target) || this.host.targetsMatches(el, this.tagName, event.target);
             let isMatch = this.host.targetMatches(el, this.tagName, eventInfo.target) || this.host.targetsMatches(el, this.tagName, eventInfo.target), isOldMatch = !isMatch && oldAttrValue == this.host.createTargetPath(this.tagName, eventInfo.target), key = {
                 element: el,
                 id: event.id
             };
-            // console.log('Bind [2]', key, 'is match =', isMatch, 'is old match =', isOldMatch, '*', this.tagName, eventInfo.target, el, event);
-            // console.log('         key:', JSON.stringify(key));
-            // console.log('         has key:', this.listeners.has(el, key));
-            // TODO: Check selectors???
             if (isMatch) {
-                // TODO: Multiple handlers via event.id?
                 if (this.listeners.has(el, key)) continue;
                 // console.log('Bind [3] (+):', key, el, event);
                 // Skip nested (Shadow DOM Only!)
@@ -328,46 +300,10 @@ class EventHandler {
                 // console.log('Bind [3] (-):', key, el, event);
                 // Remove listeners if attribute removed
                 let handler = this.listeners.get(el, key);
-                null == handler || handler.removeListener(el), // console.log('   *', handler);
-                // Remove element from listeners map
+                null == handler || handler.removeListener(el), // Remove element from listeners map
                 this.listeners.delete(el, key);
             }
-        /*
-      if (isMatch) {
-        console.log('Bind [3]:', el, event);
-
-        // Skip nested (Shadow DOM Only!)
-        const isShadowNode = el.getRootNode() === this.host.shadowRoot;
-        if (isShadowNode && el.closest(this.tagName)) continue;
-
-        // console.log('Bind [3]:', el, event);
-
-        // Create event handler
-        const eventHandler = this.createHandler(event);
-
-        // Add listener to element
-        eventHandler.addListener(el);
-
-        // Store element's event handler
-        const handlers = this.listeners.get(el) || [];
-        handlers.push(eventHandler);
-        this.listeners.set(el, handlers);
-      } else if (isOldMatch && this.listeners.has(el)) {
-        console.log('Bind [3]: Remove element listeners,', el);
-
-        // TODO: Remove only oldAttrValue listener
-
-        // Remove listeners if attribute removed
-        const handlers = this.listeners.get(el) || [];
-        for (const handler of handlers) {
-          handler.removeListener(el);
         }
-
-        // Remove element from listeners map
-        this.listeners.delete(el);
-      }
-      */ }
-    // console.log('Listeners:', this.listeners);
     }
     bindTargetElements(root) {
         // Bind controller's targets
@@ -391,7 +327,6 @@ class EventHandler {
         });
     }
     constructor(host, events){
-        // console.log('[2]', events);
         if (this.listeners = new ListenersMap(), !(host instanceof LitWidgetBase)) throw Error('[LitWidget.EventsController]: The host is not an instance of the LitWidget class.');
         this.host = host, this.tagName = this.host.tagName.toLowerCase(), this.events = this.prepareEvents(events), // console.log('Events:', this.events);
         this.host.addController(this);
@@ -415,19 +350,7 @@ function _extends() {
         return target;
     }).apply(this, arguments);
 }
-var // #events = new EventsController(this, this.events);
-_events = /*#__PURE__*/ _class_private_field_loose_key("_events"), // events = [];
-// constructor() {
-//   super();
-//   console.log(this.constructor.name, 'Init [1]', this.events);
-// }
-/*
-  constructor() {
-    super();
-    this.#prepareEvents();
-    this.#events = new EventsController(this, this.events);
-  }
-  */ _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
+var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
 /**
  * Declarative binding to child elements for [LitElement](https://lit.dev/)
  * like [Github/Catalyst](https://catalyst.rocks/) and
@@ -528,7 +451,6 @@ function prepareEvents() {
     ], eventsDefs = events.map((event, index)=>_extends({
             id: index
         }, event));
-    // console.log('[1]', eventsDefs);
     Object.defineProperty(this, 'events', {
         configurable: !0,
         get: ()=>eventsDefs

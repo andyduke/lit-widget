@@ -27,13 +27,11 @@ export class LitWidgetBase extends LitElement {
 
   targetMatches(el, tagName, targetName) {
     const selector = this.createTargetSelector(tagName, targetName);
-    // console.log('targetMatches:', el.matches(selector), selector, el);
     return el.matches(selector);
   }
 
   targetsMatches(el, tagName, targetName) {
     const selector = this.createTargetsSelector(tagName, targetName);
-    // console.log('targetsMatches:', el.matches(selector), selector, el);
     return el.matches(selector);
   }
 
