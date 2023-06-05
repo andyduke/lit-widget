@@ -48,6 +48,9 @@ HTML markup:
 </w-hello>
 ```
 
+# Attributes
+## Default values pattern
+
 # Binding of child elements
 
 # Listening to events
@@ -57,3 +60,5 @@ HTML markup:
 # Rendering
 
 # Patterns
+
+# Anti Patterns

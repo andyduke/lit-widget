@@ -1,6 +1,7 @@
-import { LitElement, html } from 'lit';
+import { html } from 'lit';
 import { templateContent } from 'lit/directives/template-content.js';
-import { throttle, debounce } from './debounce';
+import { EventsController } from './events-controller';
+import { LitWidgetBase } from './lit-widget-base';
 
 /**
  * Declarative binding to child elements for [LitElement](https://lit.dev/)
@@ -24,8 +25,24 @@ import { throttle, debounce } from './debounce';
  * TODO: Describe "static targets/targetsAll"
  * TODO: Describe "static events"
  * TODO: Describe defaultValues pattern
+ *
+ * ## Events:
+ *
+ * ```js
+ * events = [
+ *   // Event bound to target
+ *   {event: 'click', target: 'button', handler: 'doClick'},
+ *
+ *   // Event bound to DOM Element
+ *   {event: 'click', target: document, handler: 'outsideClick'},
+ *
+ *   // Event bound to element via selector
+ *   {event: 'click', selector: '.expand-button', handler: 'doExpand'},
+ * ];
+ * ```
+ *
  */
-export class LitWidget extends LitElement {
+export class LitWidget extends LitWidgetBase {
 
   static widget(name) {
     return function(proto, options) {
@@ -37,6 +54,9 @@ export class LitWidget extends LitElement {
     customElements.define('w-' + name, constructor, options);
   }
 
+  /**
+   * Default renderer, renders Light DOM
+   */
   render() {
     return html`<slot></slot>`;
   }
@@ -55,6 +75,44 @@ export class LitWidget extends LitElement {
     };
 
     return this._defaultValues;
+  }
+
+  // #events = new EventsController(this, this.events);
+  #events;
+  // events = [];
+
+  // constructor() {
+  //   super();
+  //   console.log(this.constructor.name, 'Init [1]', this.events);
+  // }
+
+  /*
+  constructor() {
+    super();
+    this.#prepareEvents();
+    this.#events = new EventsController(this, this.events);
+  }
+  */
+
+  #prepareEvents() {
+    const events = [
+      ...this._events,
+      ...this.events,
+    ];
+
+    // console.log(this.constructor.name, 'Init [4]', events);
+
+  	const eventsDefs = events.map((event, index) => {
+      return {id: index, ...event};
+    });
+    // console.log('[1]', eventsDefs);
+
+    Object.defineProperty(this, 'events', {
+    	configurable: true,
+      get() {
+      	return eventsDefs;
+      },
+    });
   }
 
   /**
@@ -96,6 +154,24 @@ export class LitWidget extends LitElement {
     return root;
   }
 
+  connectedCallback() {
+    if (!this.#events) {
+      this.#prepareEvents();
+      this.#events = new EventsController(this, this.events);
+    }
+
+    super.connectedCallback();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+
+    if (typeof this._findCache !== 'undefined') {
+      this._findCache = {};
+    }
+  }
+
+  /*
   connectedCallback() {
     super.connectedCallback();
 
@@ -175,93 +251,7 @@ export class LitWidget extends LitElement {
       }
     }
   }
-
-  /**
-   * findTarget will run `querySelectorAll` against the given widget element, plus
-   * its shadowRoot, returning any the first child that:
-   *
-   *  - Matches the selector of `[data-target~="tag.name"]` where tag is the
-   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
-   *
-   *  - Closest ascendant of the element, that matches the tagname of the
-   *    widget, is the specific instance of the widget itself - in other
-   *    words it is not nested in other widgets of the same type.
-   *
-   * @param {string} tagName - HTML element tag name
-   * @param {string} targetName - Widget property name
-   * @param {string} [selector] - Selector to find element instead of using [data-target]
-   * @param {Function} [converter] - The result converter can be used to convert the tag, for example using templateContent
-   * @returns {(HTMLElement|any|null)} The HTML element found, or null if no matching element was found
-   */
-  findTarget(tagName, targetName, selector = null, converter = null) {
-    let convert = (value) => !!converter ? converter(value) : value;
-    const tag = tagName.toLowerCase();
-
-    if (!!selector) {
-      for (const el of this.querySelectorAll(selector)) {
-        if (el.closest(tag) === this) {
-          return convert(el);
-        }
-      }
-    }
-
-    if (this.shadowRoot) {
-      for (const el of this.shadowRoot.querySelectorAll(`[data-target~="${tag}.${targetName}"]`)) {
-        if (!el.closest(tag)) return convert(el);
-      }
-    }
-
-    for (const el of this.querySelectorAll(`[data-target~="${tag}.${targetName}"]`)) {
-      if (el.closest(tag) === this) return convert(el);
-    }
-  }
-
-  /**
-   * findTargets will run `querySelectorAll` against the given widget element, plus
-   * its shadowRoot, returning all matching child elements that are:
-   *
-   *  - Matches the selector of `[data-targets~="tag.name"]` where tag is the
-   *    tagName of the HTMLElement, and `name` is the given `targetName` argument.
-   *
-   *  - Closest ascendant of the element, that matches the tagname of the
-   *    widget, is the specific instance of the widget itself - in other
-   *    words it is not nested in other widgets of the same type.
-   *
-   * @param {string} tagName - HTML element tag name
-   * @param {string} targetName - Widget property name
-   * @param {string} [selector] - Selector to find elements instead of using [data-targets]
-   * @param {Function} [converter] - The result converter can be used to convert the result tags, for example using templateContent
-   * @returns {HTMLElement[]} The HTML elements found
-   */
-  findTargets(tagName, targetName, selector = null, converter = null) {
-    let convert = (value) => !!converter ? converter(value) : value;
-    const tag = tagName.toLowerCase();
-    const targets = [];
-
-    if (!!selector) {
-      for (const el of this.querySelectorAll(selector)) {
-        if (el.closest(tag) === this) {
-          targets.push(convert(el));
-        }
-      }
-    }
-
-    if (this.shadowRoot) {
-      for (const el of this.shadowRoot.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`)) {
-        if (!el.closest(tag)) {
-          targets.push(convert(el));
-        }
-      }
-    }
-
-    for (const el of this.querySelectorAll(`[data-targets~="${tag}.${targetName}"]`)) {
-      if (el.closest(tag) === this) {
-        targets.push(convert(el));
-      }
-    }
-
-    return targets;
-  }
+  */
 
 }
 

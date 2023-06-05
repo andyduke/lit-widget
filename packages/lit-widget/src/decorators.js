@@ -108,11 +108,11 @@ export function onEvent(target, event, { debounce, throttle, wrapper } = {}) {
       throw new Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
     }
 
-    if (typeof klass.events === 'undefined') {
-      klass.events = [];
+    if (typeof instance._events === 'undefined') {
+      instance._events = [];
     }
 
-    klass.events.push({
+    instance._events.push({
       target: target,
       handler: instance[property],
       event: event,
