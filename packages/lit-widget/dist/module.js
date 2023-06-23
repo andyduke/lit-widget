@@ -661,7 +661,7 @@ class KeyboardShortcut {
             esc: 'escape',
             ins: 'insert',
             left: 'arrowleft',
-            mod: this.isMac ? 'meta' : 'control',
+            mod: this.constructor.isMac ? 'meta' : 'control',
             opt: 'alt',
             option: 'alt',
             return: 'enter',
@@ -715,6 +715,11 @@ class KeyboardShortcut {
 class KeyboardShortcuts {
     isMatchEvent(event) {
         return this.shortcuts.some((s)=>s.isMatchEvent(event));
+    // return this.shortcuts.some((s) => {
+    //   const result = s.isMatchEvent(event);
+    //   console.log('is', event, 'match', s, '=', result);
+    //   return result;
+    // });
     }
     constructor(shortcuts){
         Array.isArray(shortcuts) || (shortcuts = [

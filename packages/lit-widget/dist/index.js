@@ -963,7 +963,7 @@
               esc: "escape",
               ins: "insert",
               left: "arrowleft",
-              mod: this.isMac ? "meta" : "control",
+              mod: this.constructor.isMac ? "meta" : "control",
               opt: "alt",
               option: "alt",
               return: "enter",
@@ -1092,6 +1092,11 @@
           return this.shortcuts.some(function(s) {
               return s.isMatchEvent(event);
           });
+      // return this.shortcuts.some((s) => {
+      //   const result = s.isMatchEvent(event);
+      //   console.log('is', event, 'match', s, '=', result);
+      //   return result;
+      // });
       }, KeyboardShortcuts;
   }();
 
