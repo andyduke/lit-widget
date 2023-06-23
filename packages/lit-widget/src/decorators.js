@@ -80,13 +80,11 @@ export function targets({ selector } = {}, name = null) {
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * @param {(string|{selector: string}|Window|Document|HTMLElement)} target - The name of the target or CSS-selector to find the HTML element.
- *     To use a CSS selector to find a target for attaching an event handler,
- *     you must pass an object with the `selector` field instead of the target name, for example:
- *     `@onEvent({selector: '.button'}, 'click')`.
- *     You can also pass an existing HTML element or window to attach an event handler to document.body or window for example.
+ * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
+ *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
  * @param {string} event - The name of the DOM event to which the handler is attached.
  * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
+ * TODO: @param options.selector
  * @param options.debounce - Delay to debounce the execution of the event handler,
  *     you can specify the value in milliseconds as a number or in string format
  *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
@@ -101,7 +99,7 @@ export function targets({ selector } = {}, name = null) {
  *     The first parameter in the wrapper is the event handler method,
  *     the second is a reference to the class instance.
  */
-export function onEvent(target, event, { debounce, throttle, wrapper } = {}) {
+export function onEvent(target, event, { /* TODO: selector */ debounce, throttle, wrapper } = {}) {
   return function(instance, property) {
     const klass = instance.constructor;
     if (!(instance instanceof LitWidget)) {
@@ -116,6 +114,7 @@ export function onEvent(target, event, { debounce, throttle, wrapper } = {}) {
       target: target,
       handler: instance[property],
       event: event,
+      // TODO: selector
       debounce: debounce || null,
       throttle: throttle || null,
       wrapper: wrapper || null,

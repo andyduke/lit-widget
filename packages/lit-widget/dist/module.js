@@ -246,18 +246,29 @@ class EventHandler {
         this.listeners.clear();
     }
     createHandler(event) {
-        // Add listeners if attribute added
-        let handler = (...args)=>event.handler.apply(this.host, args);
-        // Handling delegated event
-        if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), 'string' == typeof event.selector) {
+        // Event name
+        let eventName = event.event, handler = (...args)=>event.handler.apply(this.host, args);
+        // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+        if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), 'string' == typeof event.selector && (handler = (()=>{
             let prevHandler = handler;
-            handler = (e)=>{
+            return (e)=>{
                 e.target.matches(event.selector) && prevHandler(e);
             };
+        })()), 'object' == typeof eventName) {
+            let preset = eventName;
+            if (null == preset.eventName || 'function' != typeof preset.isMatch) throw Error(`[LitWidget.EventsController]: Invalid event preset: ${preset}`);
+            // Extract eventName from preset
+            eventName = preset.eventName, // Wrap handler
+            handler = (()=>{
+                let isMatch = preset.isMatch, prevHandler = handler;
+                return (e)=>{
+                    isMatch(e) && // TODO: ??? Patch Event? For example: add 'shortcut' property.
+                    prevHandler(e);
+                };
+            })();
         }
-        // TODO: if eventName is preset -> wrap event._handler with `(event) => eventName.isMatch(event) ? event._handler : null`
         // Create event handler
-        let eventHandler = new EventHandler(event.event, handler);
+        let eventHandler = new EventHandler(eventName, handler);
         return eventHandler;
     }
     bindElementsEvents() {
@@ -359,7 +370,7 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
  * To define a widget, subclass LitWidget, specify targets using
  * the `@target/@targets` decorators or the `static targets/targetsAll` property,
  * and add event handlers using the `@onEvent` decorator or
- * the `static events` property.
+ * the `events` property.
  *
  * LitWidget unlike LitElement implements the **`render()`** method,
  * which renders all child elements of the widget through `<slot>`.
@@ -369,6 +380,8 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
  * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
  * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
  * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+ *
+ * TODO: Describe [data-root] binding
  *
  * TODO: Describe "static targets/targetsAll"
  * TODO: Describe "static events"
@@ -551,13 +564,11 @@ LitWidget.defaultValues = {}, /**
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * @param {(string|{selector: string}|Window|Document|HTMLElement)} target - The name of the target or CSS-selector to find the HTML element.
- *     To use a CSS selector to find a target for attaching an event handler,
- *     you must pass an object with the `selector` field instead of the target name, for example:
- *     `@onEvent({selector: '.button'}, 'click')`.
- *     You can also pass an existing HTML element or window to attach an event handler to document.body or window for example.
+ * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
+ *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
  * @param {string} event - The name of the DOM event to which the handler is attached.
  * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
+ * TODO: @param options.selector
  * @param options.debounce - Delay to debounce the execution of the event handler,
  *     you can specify the value in milliseconds as a number or in string format
  *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
@@ -579,6 +590,7 @@ LitWidget.defaultValues = {}, /**
             target: target,
             handler: instance[property],
             event: event,
+            // TODO: selector
             debounce: debounce || null,
             throttle: throttle || null,
             wrapper: wrapper || null
@@ -586,5 +598,152 @@ LitWidget.defaultValues = {}, /**
     };
 }
 
-export { LitWidget, onEvent, target, targets };
+// https://github.com/ianstormtaylor/is-hotkey/blob/master/src/index.js
+class KeyboardShortcut {
+    static get isMac() {
+        var _this__isMac;
+        return null != (_this__isMac = this._isMac) ? _this__isMac : this._isMac = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
+    }
+    toKeyName(name) {
+        return name = name.toLowerCase(), name = this.keyAliases[name] || name;
+    }
+    toKeyCode(name) {
+        name = this.toKeyName(name);
+        let code = this.keyCodes[name] || name.toUpperCase().charCodeAt(0);
+        return code;
+    }
+    parse(shortcut) {
+        let result = {};
+        // Special case to handle the `+` key since we use it as a separator.
+        shortcut = shortcut.replace('\\+', '+add');
+        // Split keys
+        let values = shortcut.split('+'), length = values.length;
+        // Ensure that all the modifiers are set to false unless the hotkey has them.
+        for(let k in this.keyModifiers)result[this.keyModifiers[k]] = !1;
+        for (let value of values){
+            // Optional key 'Shift?+a'
+            let optional = value.endsWith('?') && value.length > 1;
+            optional && (value = value.slice(0, -1));
+            let name = this.toKeyName(value), modifier = this.keyModifiers[name];
+            // Validate modifier
+            if (value.length > 1 && !modifier && !this.keyAliases[value] && !this.keyCodes[name]) throw TypeError(`Unknown shortcut modifier: "${value}"`);
+            1 !== length && modifier || (this.useKey ? result.key = name : result.which = this.toKeyCode(value)), modifier && (result[modifier] = !optional || null);
+        }
+        return result;
+    }
+    isMatchEvent(event) {
+        for(let key in this.shortcut){
+            let actual;
+            let expected = this.shortcut[key];
+            if (null != expected && (null != (actual = 'key' === key && null != event.key ? event.key.toLowerCase() : 'which' === key ? 91 === expected && 93 === event.which ? 91 : event.which : event[key]) || !1 !== expected) && actual !== expected) return !1;
+        }
+        return(// Store shortcut name inside event
+        Object.defineProperty(event, 'shortcut', {
+            value: this.shortcutName,
+            writable: !1
+        }), !0);
+    }
+    constructor(shortcut, { useKey =!0  } = {}){
+        this.keyModifiers = {
+            alt: 'altKey',
+            control: 'ctrlKey',
+            meta: 'metaKey',
+            shift: 'shiftKey'
+        }, this.keyAliases = {
+            add: '+',
+            break: 'pause',
+            cmd: 'meta',
+            command: 'meta',
+            ctl: 'control',
+            ctrl: 'control',
+            del: 'delete',
+            down: 'arrowdown',
+            esc: 'escape',
+            ins: 'insert',
+            left: 'arrowleft',
+            mod: this.isMac ? 'meta' : 'control',
+            opt: 'alt',
+            option: 'alt',
+            return: 'enter',
+            right: 'arrowright',
+            space: ' ',
+            spacebar: ' ',
+            up: 'arrowup',
+            win: 'meta',
+            windows: 'meta'
+        }, this.keyCodes = {
+            backspace: 8,
+            tab: 9,
+            enter: 13,
+            shift: 16,
+            control: 17,
+            alt: 18,
+            pause: 19,
+            capslock: 20,
+            escape: 27,
+            ' ': 32,
+            pageup: 33,
+            pagedown: 34,
+            end: 35,
+            home: 36,
+            arrowleft: 37,
+            arrowup: 38,
+            arrowright: 39,
+            arrowdown: 40,
+            insert: 45,
+            delete: 46,
+            meta: 91,
+            numlock: 144,
+            scrolllock: 145,
+            ';': 186,
+            '=': 187,
+            ',': 188,
+            '-': 189,
+            '.': 190,
+            '/': 191,
+            '`': 192,
+            '[': 219,
+            '\\': 220,
+            ']': 221,
+            '\'': 222
+        };
+        // Generate F1-F20 codes
+        for(let f = 1; f < 20; f++)this.keyCodes['f' + f] = 111 + f;
+        this.useKey = useKey, this.shortcutName = shortcut.toLowerCase(), this.shortcut = this.parse(this.shortcutName);
+    }
+}
+class KeyboardShortcuts {
+    isMatchEvent(event) {
+        return this.shortcuts.some((s)=>s.isMatchEvent(event));
+    }
+    constructor(shortcuts){
+        Array.isArray(shortcuts) || (shortcuts = [
+            shortcuts
+        ]), this.shortcuts = shortcuts.map((s)=>new KeyboardShortcut(s));
+    }
+}
+
+function keydown(shortcut) {
+    let shortcuts = new KeyboardShortcuts(shortcut);
+    return {
+        eventName: 'keydown',
+        isMatch: (e)=>shortcuts.isMatchEvent(e)
+    };
+}
+function keyup(shortcut) {
+    let shortcuts = new KeyboardShortcuts(shortcut);
+    return {
+        eventName: 'keyup',
+        isMatch: (e)=>shortcuts.isMatchEvent(e)
+    };
+}
+function keypress(shortcut) {
+    let shortcuts = new KeyboardShortcuts(shortcut);
+    return {
+        eventName: 'keypress',
+        isMatch: (e)=>shortcuts.isMatchEvent(e)
+    };
+}
+
+export { KeyboardShortcut, KeyboardShortcuts, LitWidget, keydown, keypress, keyup, onEvent, target, targets };
 //# sourceMappingURL=module.js.map

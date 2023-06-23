@@ -11,7 +11,7 @@ import { LitWidgetBase } from './lit-widget-base';
  * To define a widget, subclass LitWidget, specify targets using
  * the `@target/@targets` decorators or the `static targets/targetsAll` property,
  * and add event handlers using the `@onEvent` decorator or
- * the `static events` property.
+ * the `events` property.
  *
  * LitWidget unlike LitElement implements the **`render()`** method,
  * which renders all child elements of the widget through `<slot>`.
@@ -21,6 +21,8 @@ import { LitWidgetBase } from './lit-widget-base';
  * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
  * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
  * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+ *
+ * TODO: Describe [data-root] binding
  *
  * TODO: Describe "static targets/targetsAll"
  * TODO: Describe "static events"

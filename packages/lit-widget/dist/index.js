@@ -6,7 +6,7 @@
 
 (function (exports, lit, templateContent_js) {
 
-  function _array_like_to_array$3(arr, len) {
+  function _array_like_to_array$4(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -27,10 +27,10 @@
       if (it) return (it = it.call(o)).next.bind(it);
       if (Array.isArray(o) || (it = function(o, minLen) {
           if (o) {
-              if ("string" == typeof o) return _array_like_to_array$3(o, minLen);
+              if ("string" == typeof o) return _array_like_to_array$4(o, minLen);
               var n = Object.prototype.toString.call(o).slice(8, -1);
               if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$3(o, minLen);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$4(o, minLen);
           }
       }(o)) || allowArrayLike && o && "number" == typeof o.length) {
           it && (o = it);
@@ -223,7 +223,7 @@
       return value.endsWith("ms") ? duration : value.endsWith("s") ? 1000 * duration : value.endsWith("m") ? 60000 * duration : void 0;
   }
 
-  function _array_like_to_array$2(arr, len) {
+  function _array_like_to_array$3(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -241,10 +241,10 @@
       if (it) return (it = it.call(o)).next.bind(it);
       if (Array.isArray(o) || (it = function(o, minLen) {
           if (o) {
-              if ("string" == typeof o) return _array_like_to_array$2(o, minLen);
+              if ("string" == typeof o) return _array_like_to_array$3(o, minLen);
               var n = Object.prototype.toString.call(o).slice(8, -1);
               if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$2(o, minLen);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$3(o, minLen);
           }
       }(o)) || allowArrayLike && o && "number" == typeof o.length) {
           it && (o = it);
@@ -416,7 +416,7 @@
   //return key;
   }
 
-  function _array_like_to_array$1(arr, len) {
+  function _array_like_to_array$2(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -429,10 +429,10 @@
       if (it) return (it = it.call(o)).next.bind(it);
       if (Array.isArray(o) || (it = function(o, minLen) {
           if (o) {
-              if ("string" == typeof o) return _array_like_to_array$1(o, minLen);
+              if ("string" == typeof o) return _array_like_to_array$2(o, minLen);
               var n = Object.prototype.toString.call(o).slice(8, -1);
               if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$1(o, minLen);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$2(o, minLen);
           }
       }(o)) || allowArrayLike && o && "number" == typeof o.length) {
           it && (o = it);
@@ -505,18 +505,24 @@
           }
           this.listeners.clear();
       }, _proto.createHandler = function(event) {
-          var _this = this, handler = function() {
+          var _this = this, eventName = event.event, handler = function() {
               for(var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
               return event.handler.apply(_this.host, args);
           };
-          // Handling delegated event
-          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector) {
-              var prevHandler = handler;
+          // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
+              e.target.matches(event.selector) && prevHandler(e);
+          }), "object" == typeof eventName) {
+              var prevHandler, isMatch, prevHandler1, preset = eventName;
+              if (null == preset.eventName || "function" != typeof preset.isMatch) throw Error("[LitWidget.EventsController]: Invalid event preset: " + preset);
+              // Extract eventName from preset
+              eventName = preset.eventName, isMatch = preset.isMatch, prevHandler1 = handler, // Wrap handler
               handler = function(e) {
-                  e.target.matches(event.selector) && prevHandler(e);
+                  isMatch(e) && // TODO: ??? Patch Event? For example: add 'shortcut' property.
+                  prevHandler1(e);
               };
           }
-          return new EventHandler(event.event, handler);
+          return new EventHandler(eventName, handler);
       }, _proto.bindElementsEvents = function() {
           for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(this.events); !(_step = _iterator()).done;){
               var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
@@ -597,7 +603,7 @@
       }, EventsController;
   }();
 
-  function _array_like_to_array(arr, len) {
+  function _array_like_to_array$1(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -636,7 +642,7 @@
   }
   function _to_consumable_array(arr) {
       return function(arr) {
-          if (Array.isArray(arr)) return _array_like_to_array(arr);
+          if (Array.isArray(arr)) return _array_like_to_array$1(arr);
       }(arr) || function(iter) {
           if ("undefined" != typeof Symbol && null != iter[Symbol.iterator] || null != iter["@@iterator"]) return Array.from(iter);
       }(arr) || _unsupported_iterable_to_array(arr) || function() {
@@ -645,10 +651,10 @@
   }
   function _unsupported_iterable_to_array(o, minLen) {
       if (o) {
-          if ("string" == typeof o) return _array_like_to_array(o, minLen);
+          if ("string" == typeof o) return _array_like_to_array$1(o, minLen);
           var n = Object.prototype.toString.call(o).slice(8, -1);
           if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-          if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array(o, minLen);
+          if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$1(o, minLen);
       }
   }
   function _create_for_of_iterator_helper_loose(o, allowArrayLike) {
@@ -685,7 +691,7 @@
    * To define a widget, subclass LitWidget, specify targets using
    * the `@target/@targets` decorators or the `static targets/targetsAll` property,
    * and add event handlers using the `@onEvent` decorator or
-   * the `static events` property.
+   * the `events` property.
    *
    * LitWidget unlike LitElement implements the **`render()`** method,
    * which renders all child elements of the widget through `<slot>`.
@@ -695,6 +701,8 @@
    * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
    * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
    * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+   *
+   * TODO: Describe [data-root] binding
    *
    * TODO: Describe "static targets/targetsAll"
    * TODO: Describe "static events"
@@ -894,13 +902,11 @@
   /**
    * Decorator to attach a method as an HTML child element event handler
    *
-   * @param {(string|{selector: string}|Window|Document|HTMLElement)} target - The name of the target or CSS-selector to find the HTML element.
-   *     To use a CSS selector to find a target for attaching an event handler,
-   *     you must pass an object with the `selector` field instead of the target name, for example:
-   *     `@onEvent({selector: '.button'}, 'click')`.
-   *     You can also pass an existing HTML element or window to attach an event handler to document.body or window for example.
+   * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
+   *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
    * @param {string} event - The name of the DOM event to which the handler is attached.
    * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
+   * TODO: @param options.selector
    * @param options.debounce - Delay to debounce the execution of the event handler,
    *     you can specify the value in milliseconds as a number or in string format
    *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
@@ -923,6 +929,7 @@
               target: target,
               handler: instance[property],
               event: event,
+              // TODO: selector
               debounce: debounce || null,
               throttle: throttle || null,
               wrapper: wrapper || null
@@ -930,7 +937,198 @@
       };
   }
 
+  // https://github.com/ianstormtaylor/is-hotkey/blob/master/src/index.js
+  function _array_like_to_array(arr, len) {
+      (null == len || len > arr.length) && (len = arr.length);
+      for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
+      return arr2;
+  }
+  var KeyboardShortcut = function() {
+      function KeyboardShortcut(shortcut, param) {
+          var _ref_useKey = (void 0 === param ? {} : param).useKey;
+          this.keyModifiers = {
+              alt: "altKey",
+              control: "ctrlKey",
+              meta: "metaKey",
+              shift: "shiftKey"
+          }, this.keyAliases = {
+              add: "+",
+              break: "pause",
+              cmd: "meta",
+              command: "meta",
+              ctl: "control",
+              ctrl: "control",
+              del: "delete",
+              down: "arrowdown",
+              esc: "escape",
+              ins: "insert",
+              left: "arrowleft",
+              mod: this.isMac ? "meta" : "control",
+              opt: "alt",
+              option: "alt",
+              return: "enter",
+              right: "arrowright",
+              space: " ",
+              spacebar: " ",
+              up: "arrowup",
+              win: "meta",
+              windows: "meta"
+          }, this.keyCodes = {
+              backspace: 8,
+              tab: 9,
+              enter: 13,
+              shift: 16,
+              control: 17,
+              alt: 18,
+              pause: 19,
+              capslock: 20,
+              escape: 27,
+              " ": 32,
+              pageup: 33,
+              pagedown: 34,
+              end: 35,
+              home: 36,
+              arrowleft: 37,
+              arrowup: 38,
+              arrowright: 39,
+              arrowdown: 40,
+              insert: 45,
+              delete: 46,
+              meta: 91,
+              numlock: 144,
+              scrolllock: 145,
+              ";": 186,
+              "=": 187,
+              ",": 188,
+              "-": 189,
+              ".": 190,
+              "/": 191,
+              "`": 192,
+              "[": 219,
+              "\\": 220,
+              "]": 221,
+              "'": 222
+          };
+          // Generate F1-F20 codes
+          for(var f = 1; f < 20; f++)this.keyCodes["f" + f] = 111 + f;
+          this.useKey = void 0 === _ref_useKey || _ref_useKey, this.shortcutName = shortcut.toLowerCase(), this.shortcut = this.parse(this.shortcutName);
+      }
+      var staticProps, _proto = KeyboardShortcut.prototype;
+      return _proto.toKeyName = function(name) {
+          return name = name.toLowerCase(), name = this.keyAliases[name] || name;
+      }, _proto.toKeyCode = function(name) {
+          return name = this.toKeyName(name), this.keyCodes[name] || name.toUpperCase().charCodeAt(0);
+      }, _proto.parse = function(shortcut) {
+          var result = {}, values = // Special case to handle the `+` key since we use it as a separator.
+          (shortcut = shortcut.replace("\\+", "+add")).split("+"), length = values.length;
+          // Ensure that all the modifiers are set to false unless the hotkey has them.
+          for(var k in this.keyModifiers)result[this.keyModifiers[k]] = !1;
+          for(var _step, _iterator = function(o, allowArrayLike) {
+              var it = "undefined" != typeof Symbol && o[Symbol.iterator] || o["@@iterator"];
+              if (it) return (it = it.call(o)).next.bind(it);
+              if (Array.isArray(o) || (it = function(o, minLen) {
+                  if (o) {
+                      if ("string" == typeof o) return _array_like_to_array(o, minLen);
+                      var n = Object.prototype.toString.call(o).slice(8, -1);
+                      if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
+                      if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array(o, minLen);
+                  }
+              }(o))) {
+                  it && (o = it);
+                  var i = 0;
+                  return function() {
+                      return i >= o.length ? {
+                          done: !0
+                      } : {
+                          done: !1,
+                          value: o[i++]
+                      };
+                  };
+              }
+              throw TypeError("Invalid attempt to iterate non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+          }(values); !(_step = _iterator()).done;){
+              var value = _step.value, optional = value.endsWith("?") && value.length > 1;
+              optional && (value = value.slice(0, -1));
+              var name = this.toKeyName(value), modifier = this.keyModifiers[name];
+              // Validate modifier
+              if (value.length > 1 && !modifier && !this.keyAliases[value] && !this.keyCodes[name]) throw TypeError('Unknown shortcut modifier: "' + value + '"');
+              1 !== length && modifier || (this.useKey ? result.key = name : result.which = this.toKeyCode(value)), modifier && (result[modifier] = !optional || null);
+          }
+          return result;
+      }, _proto.isMatchEvent = function(event) {
+          for(var key in this.shortcut){
+              var expected = this.shortcut[key], actual = void 0;
+              if (null != expected && (null != (actual = "key" === key && null != event.key ? event.key.toLowerCase() : "which" === key ? 91 === expected && 93 === event.which ? 91 : event.which : event[key]) || !1 !== expected) && actual !== expected) return !1;
+          }
+          return(// Store shortcut name inside event
+          Object.defineProperty(event, "shortcut", {
+              value: this.shortcutName,
+              writable: !1
+          }), !0);
+      }, staticProps = [
+          {
+              key: "isMac",
+              get: function() {
+                  var _this__isMac;
+                  return null != (_this__isMac = this._isMac) ? _this__isMac : this._isMac = /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
+              }
+          }
+      ], function(target, props) {
+          for(var i = 0; i < props.length; i++){
+              var descriptor = props[i];
+              descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0, "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+          }
+      }(KeyboardShortcut, staticProps), KeyboardShortcut;
+  }();
+  var KeyboardShortcuts = function() {
+      function KeyboardShortcuts(shortcuts) {
+          Array.isArray(shortcuts) || (shortcuts = [
+              shortcuts
+          ]), this.shortcuts = shortcuts.map(function(s) {
+              return new KeyboardShortcut(s);
+          });
+      }
+      return KeyboardShortcuts.prototype.isMatchEvent = function(event) {
+          return this.shortcuts.some(function(s) {
+              return s.isMatchEvent(event);
+          });
+      }, KeyboardShortcuts;
+  }();
+
+  function keydown(shortcut) {
+      var shortcuts = new KeyboardShortcuts(shortcut);
+      return {
+          eventName: "keydown",
+          isMatch: function(e) {
+              return shortcuts.isMatchEvent(e);
+          }
+      };
+  }
+  function keyup(shortcut) {
+      var shortcuts = new KeyboardShortcuts(shortcut);
+      return {
+          eventName: "keyup",
+          isMatch: function(e) {
+              return shortcuts.isMatchEvent(e);
+          }
+      };
+  }
+  function keypress(shortcut) {
+      var shortcuts = new KeyboardShortcuts(shortcut);
+      return {
+          eventName: "keypress",
+          isMatch: function(e) {
+              return shortcuts.isMatchEvent(e);
+          }
+      };
+  }
+
+  exports.KeyboardShortcut = KeyboardShortcut;
+  exports.KeyboardShortcuts = KeyboardShortcuts;
   exports.LitWidget = LitWidget;
+  exports.keydown = keydown;
+  exports.keypress = keypress;
+  exports.keyup = keyup;
   exports.onEvent = onEvent;
   exports.target = target;
   exports.targets = targets;
