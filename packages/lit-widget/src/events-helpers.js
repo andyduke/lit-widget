@@ -1,22 +1,25 @@
-import { KeyboardShortcut } from './keyboard';
+import { KeyboardShortcuts } from './tools/keyboard';
 
 export function keydown(shortcut) {
+  const shortcuts = new KeyboardShortcuts(shortcut);
   return {
     eventName: 'keydown',
-    isMatch: (new KeyboardShortcut(shortcut)).isMatchEvent,
+    isMatch: (e) => shortcuts.isMatchEvent(e),
   }
 }
 
 export function keyup(shortcut) {
+  const shortcuts = new KeyboardShortcuts(shortcut);
   return {
     eventName: 'keyup',
-    isMatch: (new KeyboardShortcut(shortcut)).isMatchEvent,
+    isMatch: (e) => shortcuts.isMatchEvent(e),
   }
 }
 
 export function keypress(shortcut) {
+  const shortcuts = new KeyboardShortcuts(shortcut);
   return {
     eventName: 'keypress',
-    isMatch: (new KeyboardShortcut(shortcut)).isMatchEvent,
+    isMatch: (e) => shortcuts.isMatchEvent(e),
   }
 }

@@ -93,6 +93,9 @@ export class EventsController {
   }
 
   createHandler(event) {
+    // Event name
+    let eventName = event.event;
+
     // Add listeners if attribute added
     let handler = (...args) => event.handler.apply(this.host, args);
 
@@ -108,18 +111,42 @@ export class EventsController {
 
     // Handling delegated event
     if (typeof event.selector == 'string') {
-      const prevHandler = handler;
-      handler = (e) => {
-        if (e.target.matches(event.selector)) {
-          prevHandler(e);
-        }
-      };
+      handler = (() => {
+        const prevHandler = handler;
+        return (e) => {
+          if (e.target.matches(event.selector)) {
+            prevHandler(e);
+          }
+        };
+      })();
     }
 
-    // TODO: if eventName is preset -> wrap event._handler with `(event) => eventName.isMatch(event) ? event._handler : null`
+    // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+    if (typeof eventName == 'object') {
+      const preset = eventName;
+      if ((preset.eventName == null) || (typeof preset.isMatch !== 'function')) {
+        throw new Error(`[LitWidget.EventsController]: Invalid event preset: ${preset}`);
+      }
+
+      // Extract eventName from preset
+      eventName = preset.eventName;
+
+      // Wrap handler
+      handler = (() => {
+        const isMatch = preset.isMatch;
+        const prevHandler = handler;
+        return (e) => {
+          if (isMatch(e)) {
+            // TODO: ??? Patch Event? For example: add 'shortcut' property.
+            prevHandler(e);
+          }
+        };
+      })();
+
+    }
 
     // Create event handler
-    const eventHandler = new EventHandler(event.event, handler);
+    const eventHandler = new EventHandler(eventName, handler);
 
     return eventHandler;
   }
