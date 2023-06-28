@@ -101,24 +101,68 @@ export class LitWidget extends LitWidgetBase {
   }
 
   /**
+   * TODO: Static getter
+   */
+	get static() {
+    return Object.getPrototypeOf(this).constructor;
+  }
+
+  /**
    * Specifies whether to import page styles into shadowRoot.
    */
-  static sharedStyles = true
+  static sharedStyles = null
 
-  #sharedStylesController = new SharedStylesController(
-    this,
-    Object.getPrototypeOf(this).constructor.sharedStyles
-  );
+  /**
+   * TODO: describe override case
+   */
+  get sharedStyles() {
+    let sharedStyles = /*Object.getPrototypeOf(this).constructor*/this.static.sharedStyles;
+
+    // Treat null as auto
+    if ((sharedStyles == null) && !this.lightDOM) {
+      // If sharedStyles is "auto" and not lightDOM - then it will default to true
+      sharedStyles = true;
+    }
+
+    return sharedStyles;
+  }
+
+  #sharedStylesController = new SharedStylesController(this, this.sharedStyles);
+
+  /**
+   * TODO:
+   */
+  static lightDOM = false
+
+  /**
+   * TODO: describe override case
+   */
+  get lightDOM() {
+    return /*Object.getPrototypeOf(this).constructor*/this.static.lightDOM;
+  }
 
   createRenderRoot() {
-    // Find handle [data-root]
     let root;
     const tagName = this.tagName.toLowerCase();
-    const rootElement = this.querySelector(`[data-root="${tagName}"]`);
-    if (!!rootElement && rootElement.closest(tagName) == this) {
-      root = rootElement;
+
+    if (this.lightDOM) {
+      // Find light DOM root [data-root]
+      let rootElement = this.querySelector(`[data-root="${tagName}"]`);
+
+      // If the nearest root target found is not the element itself,
+      // ignore it (to avoid using the root target in a nested same widget)
+      if (rootElement != null && rootElement.closest(tagName) != this) {
+        rootElement = null;
+      }
+
+      // Use found root target or element itself as renderRoot
+      root = rootElement ?? this;
     } else {
       root = super.createRenderRoot();
+    }
+
+    if (this.lightDOM && this.sharedStyles === true) {
+      console.warn(`[LitWidget "${tagName}"] Shared styles (sharedStyles = true) with lightDOM have no effect.`);
     }
 
     return root;
