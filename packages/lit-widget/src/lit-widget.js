@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { templateContent } from 'lit/directives/template-content.js';
-import { EventsController } from './events-controller';
+import { EventsController } from './controllers/events-controller';
+import { SharedStylesController } from './controllers/shared-styles-controller';
 import { LitWidgetBase } from './lit-widget-base';
 
 /**
@@ -83,8 +84,8 @@ export class LitWidget extends LitWidgetBase {
 
   #prepareEvents() {
     const events = [
-      ...this._events,
-      ...this.events,
+      ...(this._events || []),
+      ...(this.events || []),
     ];
 
   	const eventsDefs = events.map((event, index) => {
@@ -104,35 +105,20 @@ export class LitWidget extends LitWidgetBase {
    */
   static sharedStyles = true
 
+  #sharedStylesController = new SharedStylesController(
+    this,
+    Object.getPrototypeOf(this).constructor.sharedStyles
+  );
+
   createRenderRoot() {
     // Find handle [data-root]
-    let shadowRoot = true;
     let root;
     const tagName = this.tagName.toLowerCase();
     const rootElement = this.querySelector(`[data-root="${tagName}"]`);
     if (!!rootElement && rootElement.closest(tagName) == this) {
       root = rootElement;
-      shadowRoot = false;
     } else {
       root = super.createRenderRoot();
-    }
-
-    const sharedStyles = Object.getPrototypeOf(this).constructor.sharedStyles;
-
-    if (shadowRoot && sharedStyles) {
-      // Import styles
-      for (const style of document.head.querySelectorAll('style')) {
-        if (style.getAttribute('data-shared') == 'false') continue;
-        const styleClone = style.cloneNode(true);
-        root.insertBefore(styleClone, root.firstChild);
-      }
-
-      // Import link[stylesheet]
-      for (const style of document.head.querySelectorAll('link[rel="stylesheet"]')) {
-        if (style.getAttribute('data-shared') == 'false') continue;
-        const styleClone = style.cloneNode(true);
-        root.insertBefore(styleClone, root.firstChild);
-      }
     }
 
     return root;

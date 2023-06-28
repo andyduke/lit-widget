@@ -6,7 +6,7 @@
 
 (function (exports, lit, templateContent_js) {
 
-  function _array_like_to_array$4(arr, len) {
+  function _array_like_to_array$5(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -22,15 +22,15 @@
           return o.__proto__ = p, o;
       })(o, p);
   }
-  function _create_for_of_iterator_helper_loose$3(o, allowArrayLike) {
+  function _create_for_of_iterator_helper_loose$4(o, allowArrayLike) {
       var it = "undefined" != typeof Symbol && o[Symbol.iterator] || o["@@iterator"];
       if (it) return (it = it.call(o)).next.bind(it);
       if (Array.isArray(o) || (it = function(o, minLen) {
           if (o) {
-              if ("string" == typeof o) return _array_like_to_array$4(o, minLen);
+              if ("string" == typeof o) return _array_like_to_array$5(o, minLen);
               var n = Object.prototype.toString.call(o).slice(8, -1);
               if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$4(o, minLen);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$5(o, minLen);
           }
       }(o)) || allowArrayLike && o && "number" == typeof o.length) {
           it && (o = it);
@@ -96,16 +96,16 @@
           var convert = function(value) {
               return converter ? converter(value) : value;
           }, tag = tagName.toLowerCase();
-          if (selector) for(var _step, _iterator = _create_for_of_iterator_helper_loose$3(this.querySelectorAll(selector)); !(_step = _iterator()).done;){
+          if (selector) for(var _step, _iterator = _create_for_of_iterator_helper_loose$4(this.querySelectorAll(selector)); !(_step = _iterator()).done;){
               var el = _step.value;
               if (el.closest(tag) === this) return convert(el);
           }
           var targetSelector = this.createTargetSelector(tag, targetName);
-          if (this.shadowRoot) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$3(this.shadowRoot.querySelectorAll(targetSelector)); !(_step1 = _iterator1()).done;){
+          if (this.shadowRoot) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$4(this.shadowRoot.querySelectorAll(targetSelector)); !(_step1 = _iterator1()).done;){
               var el1 = _step1.value;
               if (!el1.closest(tag)) return convert(el1);
           }
-          for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$3(this.querySelectorAll(targetSelector)); !(_step2 = _iterator2()).done;){
+          for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$4(this.querySelectorAll(targetSelector)); !(_step2 = _iterator2()).done;){
               var el2 = _step2.value;
               if (el2.closest(tag) === this) return convert(el2);
           }
@@ -130,16 +130,16 @@
           var convert = function(value) {
               return converter ? converter(value) : value;
           }, tag = tagName.toLowerCase(), targets = [];
-          if (selector) for(var _step, _iterator = _create_for_of_iterator_helper_loose$3(this.querySelectorAll(selector)); !(_step = _iterator()).done;){
+          if (selector) for(var _step, _iterator = _create_for_of_iterator_helper_loose$4(this.querySelectorAll(selector)); !(_step = _iterator()).done;){
               var el = _step.value;
               el.closest(tag) === this && targets.push(convert(el));
           }
           var targetsSelector = this.createTargetsSelector(tag, targetName);
-          if (this.shadowRoot) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$3(this.shadowRoot.querySelectorAll(targetsSelector)); !(_step1 = _iterator1()).done;){
+          if (this.shadowRoot) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$4(this.shadowRoot.querySelectorAll(targetsSelector)); !(_step1 = _iterator1()).done;){
               var el1 = _step1.value;
               el1.closest(tag) || targets.push(convert(el1));
           }
-          for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$3(this.querySelectorAll(targetsSelector)); !(_step2 = _iterator2()).done;){
+          for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$4(this.querySelectorAll(targetsSelector)); !(_step2 = _iterator2()).done;){
               var el2 = _step2.value;
               el2.closest(tag) === this && targets.push(convert(el2));
           }
@@ -223,7 +223,7 @@
       return value.endsWith("ms") ? duration : value.endsWith("s") ? 1000 * duration : value.endsWith("m") ? 60000 * duration : void 0;
   }
 
-  function _array_like_to_array$3(arr, len) {
+  function _array_like_to_array$4(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -236,15 +236,15 @@
   function _class_private_field_loose_key$1(name) {
       return "__private_" + id$1++ + "_" + name;
   }
-  function _create_for_of_iterator_helper_loose$2(o, allowArrayLike) {
+  function _create_for_of_iterator_helper_loose$3(o, allowArrayLike) {
       var it = "undefined" != typeof Symbol && o[Symbol.iterator] || o["@@iterator"];
       if (it) return (it = it.call(o)).next.bind(it);
       if (Array.isArray(o) || (it = function(o, minLen) {
           if (o) {
-              if ("string" == typeof o) return _array_like_to_array$3(o, minLen);
+              if ("string" == typeof o) return _array_like_to_array$4(o, minLen);
               var n = Object.prototype.toString.call(o).slice(8, -1);
               if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
-              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$3(o, minLen);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$4(o, minLen);
           }
       }(o)) || allowArrayLike && o && "number" == typeof o.length) {
           it && (o = it);
@@ -371,13 +371,13 @@
           }(this, function(_state) {
               switch(_state.label){
                   case 0:
-                      _iterator = _create_for_of_iterator_helper_loose$2(_class_private_field_loose_base$1(this, _map)[_map]), _state.label = 1;
+                      _iterator = _create_for_of_iterator_helper_loose$3(_class_private_field_loose_base$1(this, _map)[_map]), _state.label = 1;
                   case 1:
                       if ((_step = _iterator()).done) return [
                           3,
                           6
                       ];
-                      el = (_step_value = _step.value)[0], _iterator1 = _create_for_of_iterator_helper_loose$2(_step_value[1]), _state.label = 2;
+                      el = (_step_value = _step.value)[0], _iterator1 = _create_for_of_iterator_helper_loose$3(_step_value[1]), _state.label = 2;
                   case 2:
                       if ((_step1 = _iterator1()).done) return [
                           3,
@@ -416,7 +416,196 @@
   //return key;
   }
 
-  function _array_like_to_array$2(arr, len) {
+  function _array_like_to_array$3(arr, len) {
+      (null == len || len > arr.length) && (len = arr.length);
+      for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
+      return arr2;
+  }
+  function _instanceof$2(left, right) {
+      return null != right && "undefined" != typeof Symbol && right[Symbol.hasInstance] ? !!right[Symbol.hasInstance](left) : left instanceof right;
+  }
+  function _create_for_of_iterator_helper_loose$2(o, allowArrayLike) {
+      var it = "undefined" != typeof Symbol && o[Symbol.iterator] || o["@@iterator"];
+      if (it) return (it = it.call(o)).next.bind(it);
+      if (Array.isArray(o) || (it = function(o, minLen) {
+          if (o) {
+              if ("string" == typeof o) return _array_like_to_array$3(o, minLen);
+              var n = Object.prototype.toString.call(o).slice(8, -1);
+              if ("Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n) return Array.from(n);
+              if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array$3(o, minLen);
+          }
+      }(o)) || allowArrayLike && o && "number" == typeof o.length) {
+          it && (o = it);
+          var i = 0;
+          return function() {
+              return i >= o.length ? {
+                  done: !0
+              } : {
+                  done: !1,
+                  value: o[i++]
+              };
+          };
+      }
+      throw TypeError("Invalid attempt to iterate non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  var EventHandler = function() {
+      function EventHandler(eventName, handler) {
+          this.eventName = eventName, this.handler = handler;
+      }
+      var _proto = EventHandler.prototype;
+      return _proto.addListener = function(el) {
+          el.addEventListener(this.eventName, this.handler);
+      }, _proto.removeListener = function(el) {
+          el.removeEventListener(this.eventName, this.handler);
+      }, EventHandler;
+  }();
+  /**
+   * TODO:
+   */ var EventsController = function() {
+      function EventsController(host, events) {
+          if (this.listeners = new ListenersMap(), !_instanceof$2(host, LitWidgetBase)) throw Error("[LitWidget.EventsController]: The host is not an instance of the LitWidget class.");
+          this.host = host, this.tagName = this.host.tagName.toLowerCase(), this.events = this.prepareEvents(events), // console.log('Events:', this.events);
+          this.host.addController(this);
+      }
+      var _proto = EventsController.prototype;
+      return _proto.prepareEvents = function(events) {
+          for(var _step, targetedEvents = new Map(), _iterator = _create_for_of_iterator_helper_loose$2(events); !(_step = _iterator()).done;){
+              var event = _step.value, target = void 0;
+              if (_instanceof$2(event.target, HTMLElement) || _instanceof$2(event.target, Document) || _instanceof$2(event.target, Window)) target = {
+                  type: "element",
+                  element: event.target
+              };
+              else if ("string" == typeof event.target) target = {
+                  type: "target",
+                  target: event.target,
+                  selector: event.selector
+              };
+              else throw Error("[LitWidget.EventsController]: Invalid event definition: " + JSON.stringify(event) + ".");
+              targetedEvents.set(target, event);
+          }
+          // console.log('Targeted events:', targetedEvents);
+          return targetedEvents;
+      }, _proto.hostConnected = function() {
+          // console.log('[!] EventsController connected');
+          // Bind [type=element] events to elements
+          this.bindElementsEvents(), // Bind element events to targets
+          this.bindTargetElements(this.host), // Observe shadowRoot and element
+          this.listen([
+              this.host.shadowRoot,
+              this.host
+          ]);
+      }, _proto.hostDisconnected = function() {
+          null == (// console.log('[!] EventsController disconnected');
+          // Disconnect observer
+          _this_observer = this.observer) || _this_observer.disconnect(), this.observer = null;
+          // Remove elements listeners
+          for(var _this_observer, _step, _iterator = _create_for_of_iterator_helper_loose$2(this.listeners); !(_step = _iterator()).done;){
+              var _step_value = _step.value, element = _step_value[0];
+              (_step_value[1], _step_value[2]).removeListener(element);
+          }
+          this.listeners.clear();
+      }, _proto.createHandler = function(event) {
+          var _this = this, eventName = event.event, handler = function() {
+              for(var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
+              return event.handler.apply(_this.host, args);
+          };
+          // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
+              e.target.matches(event.selector) && prevHandler(e);
+          }), "object" == typeof eventName) {
+              var prevHandler, isMatch, prevHandler1, preset = eventName;
+              if (null == preset.eventName || "function" != typeof preset.isMatch) throw Error("[LitWidget.EventsController]: Invalid event preset: " + preset);
+              // Extract eventName from preset
+              eventName = preset.eventName, isMatch = preset.isMatch, prevHandler1 = handler, // Wrap handler
+              handler = function(e) {
+                  isMatch(e) && // TODO: ??? Patch Event? For example: add 'shortcut' property.
+                  prevHandler1(e);
+              };
+          }
+          return new EventHandler(eventName, handler);
+      }, _proto.bindElementsEvents = function() {
+          for(var _step, _iterator = _create_for_of_iterator_helper_loose$2(this.events); !(_step = _iterator()).done;){
+              var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
+              if ("element" === eventInfo.type) {
+                  var key = {
+                      element: eventInfo.element,
+                      target: eventInfo
+                  };
+                  if (!this.listeners.has(eventInfo.element, key)) {
+                      // Create event handler
+                      var eventHandler = this.createHandler(event);
+                      // Add listener to element
+                      eventHandler.addListener(eventInfo.element), // Store element's event handler
+                      this.listeners.set(eventInfo.element, key, eventHandler);
+                  }
+              }
+          }
+      }, _proto.bindEvents = function(el, oldAttrValue) {
+          // console.log('Bind actions:', el);
+          // for (const event of this.events) {
+          for(var _step, _iterator = _create_for_of_iterator_helper_loose$2(this.events); !(_step = _iterator()).done;){
+              var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
+              if ("target" === eventInfo.type) {
+                  var isMatch = this.host.targetMatches(el, this.tagName, eventInfo.target) || this.host.targetsMatches(el, this.tagName, eventInfo.target), isOldMatch = !isMatch && oldAttrValue == this.host.createTargetPath(this.tagName, eventInfo.target), key = {
+                      element: el,
+                      id: event.id
+                  };
+                  if (isMatch) {
+                      if (this.listeners.has(el, key) || el.getRootNode() === this.host.shadowRoot && el.closest(this.tagName)) continue;
+                      // Create event handler
+                      var eventHandler = this.createHandler(event);
+                      // Add listener to element
+                      eventHandler.addListener(el), // Store element's event handler
+                      this.listeners.set(el, key, eventHandler);
+                  } else if (isOldMatch) {
+                      if (!this.listeners.has(el, key)) continue;
+                      // console.log('Bind [3] (-):', key, el, event);
+                      // Remove listeners if attribute removed
+                      var handler = this.listeners.get(el, key);
+                      null == handler || handler.removeListener(el), // Remove element from listeners map
+                      this.listeners.delete(el, key);
+                  }
+              }
+          }
+      }, _proto.bindTargetElements = function(root) {
+          // Bind controller's targets
+          for(var _step, _iterator = _create_for_of_iterator_helper_loose$2(root.querySelectorAll("[" + this.host.targetAttribute + "],[" + this.host.targetsAttribute + "]")); !(_step = _iterator()).done;){
+              var el = _step.value;
+              this.bindEvents(el);
+          }
+          _instanceof$2(root, Element) && (root.hasAttribute(this.host.targetAttribute) || root.hasAttribute(this.host.targetsAttribute)) && this.bindEvents(root);
+      }, _proto.listen = function(els) {
+          var _this = this;
+          this.observer || // Create observer
+          (this.observer = new MutationObserver(function(mutations) {
+              for(var _step, _iterator = _create_for_of_iterator_helper_loose$2(mutations); !(_step = _iterator()).done;){
+                  var mutation = _step.value;
+                  if ("attributes" === mutation.type && _instanceof$2(mutation.target, Element)) _this.bindEvents(mutation.target, mutation.oldValue);
+                  else if ("childList" === mutation.type && mutation.addedNodes.length) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$2(mutation.addedNodes); !(_step1 = _iterator1()).done;){
+                      var node = _step1.value;
+                      _instanceof$2(node, Element) && _this.bindTargetElements(node);
+                  }
+              }
+          }));
+          // Observe elements
+          for(var _step, _iterator = _create_for_of_iterator_helper_loose$2(els); !(_step = _iterator()).done;){
+              var el = _step.value;
+              null != el && this.observer.observe(el, {
+                  childList: !0,
+                  subtree: !0,
+                  attributeFilter: [
+                      this.host.targetAttribute,
+                      this.host.targetsAttribute
+                  ],
+                  attributeOldValue: !0
+              });
+          }
+      }, EventsController;
+  }();
+
+  /**
+   * TODO:
+   */ function _array_like_to_array$2(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -448,159 +637,78 @@
       }
       throw TypeError("Invalid attempt to iterate non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-  var EventHandler = function() {
-      function EventHandler(eventName, handler) {
-          this.eventName = eventName, this.handler = handler;
+  var SharedStylesController = function() {
+      function SharedStylesController(host, sharedStyles) {
+          this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this));
       }
-      var _proto = EventHandler.prototype;
-      return _proto.addListener = function(el) {
-          el.addEventListener(this.eventName, this.handler);
-      }, _proto.removeListener = function(el) {
-          el.removeEventListener(this.eventName, this.handler);
-      }, EventHandler;
-  }();
-  /**
-   *
-   */ var EventsController = function() {
-      function EventsController(host, events) {
-          if (this.listeners = new ListenersMap(), !_instanceof$1(host, LitWidgetBase)) throw Error("[LitWidget.EventsController]: The host is not an instance of the LitWidget class.");
-          this.host = host, this.tagName = this.host.tagName.toLowerCase(), this.events = this.prepareEvents(events), // console.log('Events:', this.events);
-          this.host.addController(this);
-      }
-      var _proto = EventsController.prototype;
-      return _proto.prepareEvents = function(events) {
-          for(var _step, targetedEvents = new Map(), _iterator = _create_for_of_iterator_helper_loose$1(events); !(_step = _iterator()).done;){
-              var event = _step.value, target = void 0;
-              if (_instanceof$1(event.target, HTMLElement) || _instanceof$1(event.target, Document) || _instanceof$1(event.target, Window)) target = {
-                  type: "element",
-                  element: event.target
-              };
-              else if ("string" == typeof event.target) target = {
-                  type: "target",
-                  target: event.target,
-                  selector: event.selector
-              };
-              else throw Error("[LitWidget.EventsController]: Invalid event definition: " + JSON.stringify(event) + ".");
-              targetedEvents.set(target, event);
+      var _proto = SharedStylesController.prototype;
+      return _proto.hostConnected = function() {
+          var shadowRoot = null != this.host.shadowRoot;
+          if (!this.initialized) {
+              this.initialized = !0;
+              var root = this.host.renderRoot, document = this.host.ownerDocument;
+              if (shadowRoot) {
+                  // Import styles
+                  for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(document.head.querySelectorAll("style")); !(_step = _iterator()).done;){
+                      var style = _step.value;
+                      this.addStyle(style, root);
+                  }
+                  // Import link[stylesheet]
+                  for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$1(document.head.querySelectorAll('link[rel="stylesheet"]')); !(_step1 = _iterator1()).done;){
+                      var style1 = _step1.value;
+                      this.addStyle(style1, root);
+                  }
+              }
           }
-          // console.log('Targeted events:', targetedEvents);
-          return targetedEvents;
-      }, _proto.hostConnected = function() {
-          // console.log('[!] EventsController connected');
-          // Bind [type=element] events to elements
-          this.bindElementsEvents(), // Bind element events to targets
-          this.bindTargetElements(this.host), // Observe shadowRoot and element
-          this.listen([
-              this.host.shadowRoot,
-              this.host
-          ]);
+          shadowRoot && this.startObserving();
+      }, _proto.addStyle = function(style, root) {
+          // Skip non-shared styles
+          if (void 0 === root && (root = null), "false" != style.getAttribute("data-shared")) {
+              null == root && (root = this.host.renderRoot), null == this.styleRoot && (this.styleRoot = this.host.ownerDocument.createElement("shared-styles--"), root.insertBefore(this.styleRoot, root.firstChild));
+              // Cloning and adding a style
+              var styleClone = style.cloneNode(!0);
+              this.styleRoot.appendChild(styleClone), // Save the link between the style and its clone
+              this.styles.set(style, styleClone);
+          }
+      }, _proto.removeStyle = function(style) {
+          var styleClone = this.styles.get(style);
+          null != styleClone && (styleClone.remove(), this.styles.delete(style));
       }, _proto.hostDisconnected = function() {
-          null == (// console.log('[!] EventsController disconnected');
-          // Disconnect observer
-          _this_observer = this.observer) || _this_observer.disconnect(), this.observer = null;
-          // Remove elements listeners
-          for(var _this_observer, _step, _iterator = _create_for_of_iterator_helper_loose$1(this.listeners); !(_step = _iterator()).done;){
-              var _step_value = _step.value, element = _step_value[0];
-              (_step_value[1], _step_value[2]).removeListener(element);
-          }
-          this.listeners.clear();
-      }, _proto.createHandler = function(event) {
-          var _this = this, eventName = event.event, handler = function() {
-              for(var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
-              return event.handler.apply(_this.host, args);
-          };
-          // Handle event preset (eventName = {eventHandler: string, isMatch: function})
-          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
-              e.target.matches(event.selector) && prevHandler(e);
-          }), "object" == typeof eventName) {
-              var prevHandler, isMatch, prevHandler1, preset = eventName;
-              if (null == preset.eventName || "function" != typeof preset.isMatch) throw Error("[LitWidget.EventsController]: Invalid event preset: " + preset);
-              // Extract eventName from preset
-              eventName = preset.eventName, isMatch = preset.isMatch, prevHandler1 = handler, // Wrap handler
-              handler = function(e) {
-                  isMatch(e) && // TODO: ??? Patch Event? For example: add 'shortcut' property.
-                  prevHandler1(e);
-              };
-          }
-          return new EventHandler(eventName, handler);
-      }, _proto.bindElementsEvents = function() {
-          for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(this.events); !(_step = _iterator()).done;){
-              var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
-              if ("element" === eventInfo.type) {
-                  var key = {
-                      element: eventInfo.element,
-                      target: eventInfo
-                  };
-                  if (!this.listeners.has(eventInfo.element, key)) {
-                      // Create event handler
-                      var eventHandler = this.createHandler(event);
-                      // Add listener to element
-                      eventHandler.addListener(eventInfo.element), // Store element's event handler
-                      this.listeners.set(eventInfo.element, key, eventHandler);
-                  }
-              }
-          }
-      }, _proto.bindEvents = function(el, oldAttrValue) {
-          // console.log('Bind actions:', el);
-          // for (const event of this.events) {
-          for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(this.events); !(_step = _iterator()).done;){
-              var _step_value = _step.value, eventInfo = _step_value[0], event = _step_value[1];
-              if ("target" === eventInfo.type) {
-                  var isMatch = this.host.targetMatches(el, this.tagName, eventInfo.target) || this.host.targetsMatches(el, this.tagName, eventInfo.target), isOldMatch = !isMatch && oldAttrValue == this.host.createTargetPath(this.tagName, eventInfo.target), key = {
-                      element: el,
-                      id: event.id
-                  };
-                  if (isMatch) {
-                      if (this.listeners.has(el, key) || el.getRootNode() === this.host.shadowRoot && el.closest(this.tagName)) continue;
-                      // Create event handler
-                      var eventHandler = this.createHandler(event);
-                      // Add listener to element
-                      eventHandler.addListener(el), // Store element's event handler
-                      this.listeners.set(el, key, eventHandler);
-                  } else if (isOldMatch) {
-                      if (!this.listeners.has(el, key)) continue;
-                      // console.log('Bind [3] (-):', key, el, event);
-                      // Remove listeners if attribute removed
-                      var handler = this.listeners.get(el, key);
-                      null == handler || handler.removeListener(el), // Remove element from listeners map
-                      this.listeners.delete(el, key);
-                  }
-              }
-          }
-      }, _proto.bindTargetElements = function(root) {
-          // Bind controller's targets
-          for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(root.querySelectorAll("[" + this.host.targetAttribute + "],[" + this.host.targetsAttribute + "]")); !(_step = _iterator()).done;){
-              var el = _step.value;
-              this.bindEvents(el);
-          }
-          _instanceof$1(root, Element) && (root.hasAttribute(this.host.targetAttribute) || root.hasAttribute(this.host.targetsAttribute)) && this.bindEvents(root);
-      }, _proto.listen = function(els) {
+          this.stopObserving();
+      }, _proto.startObserving = function() {
           var _this = this;
-          this.observer || // Create observer
-          (this.observer = new MutationObserver(function(mutations) {
+          null == this.observer && (this.observer = new MutationObserver(function(mutations) {
               for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(mutations); !(_step = _iterator()).done;){
                   var mutation = _step.value;
-                  if ("attributes" === mutation.type && _instanceof$1(mutation.target, Element)) _this.bindEvents(mutation.target, mutation.oldValue);
-                  else if ("childList" === mutation.type && mutation.addedNodes.length) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$1(mutation.addedNodes); !(_step1 = _iterator1()).done;){
-                      var node = _step1.value;
-                      _instanceof$1(node, Element) && _this.bindTargetElements(node);
+                  if ("childList" === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                      // console.log('! [+]', mutation.addedNodes);
+                      // console.log('! [-]', mutation.removedNodes);
+                      for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$1(mutation.addedNodes); !(_step1 = _iterator1()).done;){
+                          var node = _step1.value;
+                          if (_instanceof$1(node, Element)) {
+                              var tagName = node.tagName.toLowerCase();
+                              ("style" == tagName || "link" == tagName && "stylesheet" == node.getAttribute("rel")) && _this.addStyle(node);
+                          }
+                      }
+                      for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$1(mutation.removedNodes); !(_step2 = _iterator2()).done;){
+                          var node1 = _step2.value;
+                          if (_instanceof$1(node1, Element)) {
+                              var tagName1 = node1.tagName.toLowerCase();
+                              ("style" == tagName1 || "link" == tagName1 && "stylesheet" == node1.getAttribute("rel")) && _this.removeStyle(node1);
+                          }
+                      }
                   }
               }
           }));
-          // Observe elements
-          for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(els); !(_step = _iterator()).done;){
-              var el = _step.value;
-              this.observer.observe(el, {
-                  childList: !0,
-                  subtree: !0,
-                  attributeFilter: [
-                      this.host.targetAttribute,
-                      this.host.targetsAttribute
-                  ],
-                  attributeOldValue: !0
-              });
-          }
-      }, EventsController;
+          // Start observer
+          var head = this.host.ownerDocument.head;
+          this.observer.observe(head, {
+              childList: !0,
+              subtree: !0
+          });
+      }, _proto.stopObserving = function() {
+          null != this.observer && (this.observer.takeRecords(), this.observer.disconnect());
+      }, SharedStylesController;
   }();
 
   function _array_like_to_array$1(arr, len) {
@@ -682,7 +790,7 @@
           return data;
       }, data;
   }
-  var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
+  var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents"), _sharedStylesController = /*#__PURE__*/ _class_private_field_loose_key("_sharedStylesController");
   /**
    * Declarative binding to child elements for [LitElement](https://lit.dev/)
    * like [Github/Catalyst](https://catalyst.rocks/) and
@@ -731,7 +839,10 @@
           }), Object.defineProperty(_assert_this_initialized(_this), _events, {
               writable: !0,
               value: void 0
-          }), _this;
+          }), Object.defineProperty(_assert_this_initialized(_this), _sharedStylesController, {
+              writable: !0,
+              value: void 0
+          }), _class_private_field_loose_base(_this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(_assert_this_initialized(_this), Object.getPrototypeOf(_this).constructor.sharedStyles), _this;
       }
       !function(subClass, superClass) {
           if ("function" != typeof superClass && null !== superClass) throw TypeError("Super expression must either be null or a function");
@@ -749,29 +860,8 @@
      */ _proto.render = function() {
           return lit.html(_templateObject());
       }, _proto.createRenderRoot = function() {
-          // Find handle [data-root]
-          var shadowRoot = !0, tagName = this.tagName.toLowerCase(), rootElement = this.querySelector('[data-root="' + tagName + '"]');
-          rootElement && rootElement.closest(tagName) == this ? (root = rootElement, shadowRoot = !1) : root = LitWidgetBase.prototype.createRenderRoot.call(this);
-          var sharedStyles = Object.getPrototypeOf(this).constructor.sharedStyles;
-          if (shadowRoot && sharedStyles) {
-              // Import styles
-              for(var root, _step, _iterator = _create_for_of_iterator_helper_loose(document.head.querySelectorAll("style")); !(_step = _iterator()).done;){
-                  var style = _step.value;
-                  if ("false" != style.getAttribute("data-shared")) {
-                      var styleClone = style.cloneNode(!0);
-                      root.insertBefore(styleClone, root.firstChild);
-                  }
-              }
-              // Import link[stylesheet]
-              for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose(document.head.querySelectorAll('link[rel="stylesheet"]')); !(_step1 = _iterator1()).done;){
-                  var style1 = _step1.value;
-                  if ("false" != style1.getAttribute("data-shared")) {
-                      var styleClone1 = style1.cloneNode(!0);
-                      root.insertBefore(styleClone1, root.firstChild);
-                  }
-              }
-          }
-          return root;
+          var tagName = this.tagName.toLowerCase(), rootElement = this.querySelector('[data-root="' + tagName + '"]');
+          return rootElement && rootElement.closest(tagName) == this ? rootElement : LitWidgetBase.prototype.createRenderRoot.call(this);
       }, _proto.connectedCallback = function() {
           _class_private_field_loose_base(this, _events)[_events] || (_class_private_field_loose_base(this, _prepareEvents)[_prepareEvents](), _class_private_field_loose_base(this, _events)[_events] = new EventsController(this, this.events)), LitWidgetBase.prototype.connectedCallback.call(this);
       }, _proto.disconnectedCallback = function() {
@@ -794,7 +884,7 @@
       ], _defineProperties(LitWidget.prototype, protoProps), LitWidget);
   }(LitWidgetBase);
   function prepareEvents() {
-      var eventsDefs = _to_consumable_array(this._events).concat(_to_consumable_array(this.events)).map(function(event, index) {
+      var eventsDefs = _to_consumable_array(this._events || []).concat(_to_consumable_array(this.events || [])).map(function(event, index) {
           return _extends({
               id: index
           }, event);

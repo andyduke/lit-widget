@@ -206,7 +206,7 @@ class EventHandler {
     }
 }
 /**
- *
+ * TODO:
  */ class EventsController {
     prepareEvents(events) {
         let targetedEvents = new Map();
@@ -327,7 +327,7 @@ class EventHandler {
         (this.observer = new MutationObserver((mutations)=>{
             for (let mutation of mutations)if ('attributes' === mutation.type && mutation.target instanceof Element) this.bindEvents(mutation.target, mutation.oldValue);
             else if ('childList' === mutation.type && mutation.addedNodes.length) for (let node of mutation.addedNodes)node instanceof Element && this.bindTargetElements(node);
-        })), els))this.observer.observe(el, {
+        })), els))null != el && this.observer.observe(el, {
             childList: !0,
             subtree: !0,
             attributeFilter: [
@@ -341,6 +341,69 @@ class EventHandler {
         if (this.listeners = new ListenersMap(), !(host instanceof LitWidgetBase)) throw Error('[LitWidget.EventsController]: The host is not an instance of the LitWidget class.');
         this.host = host, this.tagName = this.host.tagName.toLowerCase(), this.events = this.prepareEvents(events), // console.log('Events:', this.events);
         this.host.addController(this);
+    }
+}
+
+/**
+ * TODO:
+ */ class SharedStylesController {
+    hostConnected() {
+        let shadowRoot = null != this.host.shadowRoot;
+        if (!this.initialized) {
+            this.initialized = !0;
+            let root = this.host.renderRoot, document = this.host.ownerDocument;
+            if (shadowRoot) {
+                // Import styles
+                for (let style of document.head.querySelectorAll('style'))this.addStyle(style, root);
+                // Import link[stylesheet]
+                for (let style of document.head.querySelectorAll('link[rel="stylesheet"]'))this.addStyle(style, root);
+            }
+        }
+        shadowRoot && this.startObserving();
+    }
+    addStyle(style, root = null) {
+        // Skip non-shared styles
+        if ('false' == style.getAttribute('data-shared')) return;
+        null == root && (root = this.host.renderRoot), null == this.styleRoot && (this.styleRoot = this.host.ownerDocument.createElement('shared-styles--'), root.insertBefore(this.styleRoot, root.firstChild));
+        // Cloning and adding a style
+        let styleClone = style.cloneNode(!0);
+        this.styleRoot.appendChild(styleClone), // Save the link between the style and its clone
+        this.styles.set(style, styleClone);
+    }
+    removeStyle(style) {
+        let styleClone = this.styles.get(style);
+        null != styleClone && (styleClone.remove(), this.styles.delete(style));
+    }
+    hostDisconnected() {
+        this.stopObserving();
+    }
+    startObserving() {
+        null == this.observer && (this.observer = new MutationObserver((mutations)=>{
+            for (let mutation of mutations)if ('childList' === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                // console.log('! [+]', mutation.addedNodes);
+                // console.log('! [-]', mutation.removedNodes);
+                for (let node of mutation.addedNodes)if (node instanceof Element) {
+                    let tagName = node.tagName.toLowerCase();
+                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.addStyle(node);
+                }
+                for (let node of mutation.removedNodes)if (node instanceof Element) {
+                    let tagName = node.tagName.toLowerCase();
+                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.removeStyle(node);
+                }
+            }
+        }));
+        // Start observer
+        let head = this.host.ownerDocument.head;
+        this.observer.observe(head, {
+            childList: !0,
+            subtree: !0
+        });
+    }
+    stopObserving() {
+        null != this.observer && (this.observer.takeRecords(), this.observer.disconnect());
+    }
+    constructor(host, sharedStyles){
+        this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this));
     }
 }
 
@@ -361,7 +424,7 @@ function _extends() {
         return target;
     }).apply(this, arguments);
 }
-var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents");
+var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents"), _sharedStylesController = /*#__PURE__*/ _class_private_field_loose_key("_sharedStylesController");
 /**
  * Declarative binding to child elements for [LitElement](https://lit.dev/)
  * like [Github/Catalyst](https://catalyst.rocks/) and
@@ -422,25 +485,8 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
         return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
     }
     createRenderRoot() {
-        // Find handle [data-root]
-        let root, shadowRoot = !0, tagName = this.tagName.toLowerCase(), rootElement = this.querySelector(`[data-root="${tagName}"]`);
-        rootElement && rootElement.closest(tagName) == this ? (root = rootElement, shadowRoot = !1) : root = super.createRenderRoot();
-        let sharedStyles = Object.getPrototypeOf(this).constructor.sharedStyles;
-        if (shadowRoot && sharedStyles) {
-            // Import styles
-            for (let style of document.head.querySelectorAll('style')){
-                if ('false' == style.getAttribute('data-shared')) continue;
-                let styleClone = style.cloneNode(!0);
-                root.insertBefore(styleClone, root.firstChild);
-            }
-            // Import link[stylesheet]
-            for (let style of document.head.querySelectorAll('link[rel="stylesheet"]')){
-                if ('false' == style.getAttribute('data-shared')) continue;
-                let styleClone = style.cloneNode(!0);
-                root.insertBefore(styleClone, root.firstChild);
-            }
-        }
-        return root;
+        let tagName = this.tagName.toLowerCase(), rootElement = this.querySelector(`[data-root="${tagName}"]`);
+        return rootElement && rootElement.closest(tagName) == this ? rootElement : super.createRenderRoot();
     }
     connectedCallback() {
         _class_private_field_loose_base(this, _events)[_events] || (_class_private_field_loose_base(this, _prepareEvents)[_prepareEvents](), _class_private_field_loose_base(this, _events)[_events] = new EventsController(this, this.events)), super.connectedCallback();
@@ -454,13 +500,16 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
         }), Object.defineProperty(this, _events, {
             writable: !0,
             value: void 0
-        });
+        }), Object.defineProperty(this, _sharedStylesController, {
+            writable: !0,
+            value: void 0
+        }), _class_private_field_loose_base(this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(this, Object.getPrototypeOf(this).constructor.sharedStyles);
     }
 }
 function prepareEvents() {
     let events = [
-        ...this._events,
-        ...this.events
+        ...this._events || [],
+        ...this.events || []
     ], eventsDefs = events.map((event, index)=>_extends({
             id: index
         }, event));
