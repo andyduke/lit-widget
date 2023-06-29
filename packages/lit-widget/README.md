@@ -5,11 +5,7 @@
 
 **LitWidget** is a pattern to simplify the development of Web Components using the [Lit](https://lit.dev/) library.
 
-The **LitWidget** widget extends **LitElement** and gives you the ability to declaratively bind component class properties to the component's html child elements, as well as add event handlers to them. This pattern is similarly implemented in [Github/Catalyst](https://catalyst.rocks/) and [Stimulus.js](https://stimulus.hotwired.dev/).
-
-**LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements (Light DOM), thus Progressive Enhancement is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
-
-Also, **LitWidget** makes all page styles (both `<style>` and `<link>` tags) available in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute), this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+The **LitWidget** widget extends **LitElement** and gives you the ability to declaratively bind component class properties to the component's html child elements, as well as add event handlers to them. This binding greatly simplifies working with the **[Light DOM](#light-dom)**. A similar pattern is implemented in [Github/Catalyst](https://catalyst.rocks/) and [Stimulus.js](https://stimulus.hotwired.dev/).
 
 ## Usage example
 
@@ -47,6 +43,28 @@ HTML markup:
   <span data-target="w-hello.output"></span>
 </w-hello>
 ```
+
+# Light DOM
+
+Light DOM is the markup that the user of your component writes. This DOM is outside of the component's shadow DOM. These are the actual children of the element.
+```html
+<better-button>
+  <!-- the image and span are better-button's light DOM -->
+  <img src="gear.svg" slot="icon">
+  <span>Settings</span>
+</better-button>
+```
+
+Why and when should you use Light DOM?
+
+Shadow DOM has a number of limitations that are useful when developing web applications, but not always suitable for website development.
+
+# Differences from LitElement
+
+**LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements (Light DOM), thus Progressive Enhancement is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
+
+Also, **LitWidget** makes all page styles (both `<style>` and `<link>` tags) available in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute), this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+
 
 # Attributes
 ## Default values pattern
