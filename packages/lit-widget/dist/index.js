@@ -603,9 +603,7 @@
       }, EventsController;
   }();
 
-  /**
-   * TODO:
-   */ function _array_like_to_array$2(arr, len) {
+  function _array_like_to_array$2(arr, len) {
       (null == len || len > arr.length) && (len = arr.length);
       for(var i = 0, arr2 = Array(len); i < len; i++)arr2[i] = arr[i];
       return arr2;
@@ -637,9 +635,63 @@
       }
       throw TypeError("Invalid attempt to iterate non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-  var SharedStylesController = function() {
+  var DocumentStylesObserver = function() {
+      function DocumentStylesObserver(document) {
+          var _this = this;
+          this.document = document, this.listeners = new Set(), this.observing = !1, this.observer = new MutationObserver(function(mutations) {
+              for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(mutations); !(_step = _iterator()).done;){
+                  var mutation = _step.value;
+                  if ("childList" === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                      // console.log('! [+]', mutation.addedNodes);
+                      // console.log('! [-]', mutation.removedNodes);
+                      for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$1(mutation.addedNodes); !(_step1 = _iterator1()).done;){
+                          var node = _step1.value;
+                          if (_instanceof$1(node, Element)) {
+                              var tagName = node.tagName.toLowerCase();
+                              ("style" == tagName || "link" == tagName && "stylesheet" == node.getAttribute("rel")) && _this.notifyListeners({
+                                  type: "add",
+                                  node: node
+                              });
+                          }
+                      }
+                      for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$1(mutation.removedNodes); !(_step2 = _iterator2()).done;){
+                          var node1 = _step2.value;
+                          if (_instanceof$1(node1, Element)) {
+                              var tagName1 = node1.tagName.toLowerCase();
+                              ("style" == tagName1 || "link" == tagName1 && "stylesheet" == node1.getAttribute("rel")) && _this.notifyListeners({
+                                  type: "remove",
+                                  node: node1
+                              });
+                          }
+                      }
+                  }
+              }
+          });
+      }
+      var _proto = DocumentStylesObserver.prototype;
+      return _proto.observe = function() {
+          this.observing || (this.observer.observe(this.document.head, {
+              childList: !0,
+              subtree: !0
+          }), this.observing = !0);
+      }, _proto.disconnect = function() {
+          this.observing && (this.observer.takeRecords(), this.observer.disconnect(), this.observing = !1);
+      }, _proto.addListener = function(fn) {
+          this.listeners.add(fn), this.listeners.size > 0 && this.observe();
+      }, _proto.removeListener = function(fn) {
+          this.listeners.delete(fn), 0 == this.listeners.size && this.disconnect();
+      }, _proto.notifyListeners = function(operation) {
+          for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(this.listeners); !(_step = _iterator()).done;)(0, _step.value)(operation);
+      }, DocumentStylesObserver;
+  }();
+  /**
+   * TODO:
+   */ var SharedStylesController = function() {
       function SharedStylesController(host, sharedStyles) {
-          this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this));
+          var _this = this;
+          this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this), this.stylesUpdated = function(o) {
+              return _this.updated(o);
+          });
       }
       var _proto = SharedStylesController.prototype;
       return _proto.hostConnected = function() {
@@ -676,38 +728,19 @@
       }, _proto.hostDisconnected = function() {
           this.stopObserving();
       }, _proto.startObserving = function() {
-          var _this = this;
-          null == this.observer && (this.observer = new MutationObserver(function(mutations) {
-              for(var _step, _iterator = _create_for_of_iterator_helper_loose$1(mutations); !(_step = _iterator()).done;){
-                  var mutation = _step.value;
-                  if ("childList" === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
-                      // console.log('! [+]', mutation.addedNodes);
-                      // console.log('! [-]', mutation.removedNodes);
-                      for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose$1(mutation.addedNodes); !(_step1 = _iterator1()).done;){
-                          var node = _step1.value;
-                          if (_instanceof$1(node, Element)) {
-                              var tagName = node.tagName.toLowerCase();
-                              ("style" == tagName || "link" == tagName && "stylesheet" == node.getAttribute("rel")) && _this.addStyle(node);
-                          }
-                      }
-                      for(var _step2, _iterator2 = _create_for_of_iterator_helper_loose$1(mutation.removedNodes); !(_step2 = _iterator2()).done;){
-                          var node1 = _step2.value;
-                          if (_instanceof$1(node1, Element)) {
-                              var tagName1 = node1.tagName.toLowerCase();
-                              ("style" == tagName1 || "link" == tagName1 && "stylesheet" == node1.getAttribute("rel")) && _this.removeStyle(node1);
-                          }
-                      }
-                  }
-              }
-          }));
-          // Start observer
-          var head = this.host.ownerDocument.head;
-          this.observer.observe(head, {
-              childList: !0,
-              subtree: !0
-          });
+          null == SharedStylesController.observer && (SharedStylesController.observer = new DocumentStylesObserver(this.host.ownerDocument)), // Start observing
+          SharedStylesController.observer.addListener(this.stylesUpdated);
       }, _proto.stopObserving = function() {
-          null != this.observer && (this.observer.takeRecords(), this.observer.disconnect());
+          null != SharedStylesController.observer && SharedStylesController.observer.removeListener(this.stylesUpdated);
+      }, _proto.updated = function(param) {
+          var type = param.type, node = param.node;
+          switch(type){
+              case "add":
+                  this.addStyle(node);
+                  break;
+              case "remove":
+                  this.removeStyle(node);
+          }
       }, SharedStylesController;
   }();
 
@@ -842,7 +875,7 @@
           }), Object.defineProperty(_assert_this_initialized(_this), _sharedStylesController, {
               writable: !0,
               value: void 0
-          }), _class_private_field_loose_base(_this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(_assert_this_initialized(_this), Object.getPrototypeOf(_this).constructor.sharedStyles), _this;
+          }), _class_private_field_loose_base(_this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(_assert_this_initialized(_this), _this.sharedStyles), _this;
       }
       !function(subClass, superClass) {
           if ("function" != typeof superClass && null !== superClass) throw TypeError("Super expression must either be null or a function");
@@ -860,8 +893,14 @@
      */ _proto.render = function() {
           return lit.html(_templateObject());
       }, _proto.createRenderRoot = function() {
-          var tagName = this.tagName.toLowerCase(), rootElement = this.querySelector('[data-root="' + tagName + '"]');
-          return rootElement && rootElement.closest(tagName) == this ? rootElement : LitWidgetBase.prototype.createRenderRoot.call(this);
+          var root, tagName = this.tagName.toLowerCase();
+          if (this.lightDOM) {
+              // Find light DOM root [data-root]
+              var rootElement = this.querySelector('[data-root="' + tagName + '"]');
+              null != rootElement && rootElement.closest(tagName) != this && (rootElement = null), // Use found root target or element itself as renderRoot
+              root = null != rootElement ? rootElement : this;
+          } else root = LitWidgetBase.prototype.createRenderRoot.call(this);
+          return this.lightDOM && !0 === this.sharedStyles && console.warn('[LitWidget "' + tagName + '"] Shared styles (sharedStyles = true) with lightDOM have no effect.'), root;
       }, _proto.connectedCallback = function() {
           _class_private_field_loose_base(this, _events)[_events] || (_class_private_field_loose_base(this, _prepareEvents)[_prepareEvents](), _class_private_field_loose_base(this, _events)[_events] = new EventsController(this, this.events)), LitWidgetBase.prototype.connectedCallback.call(this);
       }, _proto.disconnectedCallback = function() {
@@ -879,6 +918,32 @@
                   if (null != this._defaultValues) return this._defaultValues;
                   var parentDefaultValues = (null != LitWidget && "undefined" != typeof Symbol && LitWidget[Symbol.hasInstance] ? !!LitWidget[Symbol.hasInstance](this) : this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
                   return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
+              }
+          },
+          {
+              key: "static",
+              get: /**
+     * TODO: Static getter
+     */ function() {
+                  return Object.getPrototypeOf(this).constructor;
+              }
+          },
+          {
+              key: "sharedStyles",
+              get: /**
+     * TODO: describe override case
+     */ function() {
+                  var sharedStyles = /*Object.getPrototypeOf(this).constructor*/ this.static.sharedStyles;
+                  return null != sharedStyles || this.lightDOM || // If sharedStyles is "auto" and not lightDOM - then it will default to true
+                  (sharedStyles = !0), sharedStyles;
+              }
+          },
+          {
+              key: "lightDOM",
+              get: /**
+     * TODO: describe override case
+     */ function() {
+                  return /*Object.getPrototypeOf(this).constructor*/ this.static.lightDOM;
               }
           }
       ], _defineProperties(LitWidget.prototype, protoProps), LitWidget);
@@ -898,7 +963,9 @@
   }
   LitWidget.defaultValues = {}, /**
      * Specifies whether to import page styles into shadowRoot.
-     */ LitWidget.sharedStyles = !0, LitWidget.addInitializer(function(instance) {
+     */ LitWidget.sharedStyles = null, /**
+     * TODO:
+     */ LitWidget.lightDOM = !1, LitWidget.addInitializer(function(instance) {
       var klass = Object.getPrototypeOf(instance).constructor;
       if (void 0 !== klass.targets) for(var _step, _iterator = _create_for_of_iterator_helper_loose(Object.entries(klass.targets)); !(_step = _iterator()).done;)!function() {
           var _step_value = _step.value, target = _step_value[0], options = _step_value[1];

@@ -344,6 +344,48 @@ class EventHandler {
     }
 }
 
+class DocumentStylesObserver {
+    observe() {
+        this.observing || (this.observer.observe(this.document.head, {
+            childList: !0,
+            subtree: !0
+        }), this.observing = !0);
+    }
+    disconnect() {
+        this.observing && (this.observer.takeRecords(), this.observer.disconnect(), this.observing = !1);
+    }
+    addListener(fn) {
+        this.listeners.add(fn), this.listeners.size > 0 && this.observe();
+    }
+    removeListener(fn) {
+        this.listeners.delete(fn), 0 == this.listeners.size && this.disconnect();
+    }
+    notifyListeners(operation) {
+        for (let listener of this.listeners)listener(operation);
+    }
+    constructor(document){
+        this.document = document, this.listeners = new Set(), this.observing = !1, this.observer = new MutationObserver((mutations)=>{
+            for (let mutation of mutations)if ('childList' === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+                // console.log('! [+]', mutation.addedNodes);
+                // console.log('! [-]', mutation.removedNodes);
+                for (let node of mutation.addedNodes)if (node instanceof Element) {
+                    let tagName = node.tagName.toLowerCase();
+                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.notifyListeners({
+                        type: 'add',
+                        node
+                    });
+                }
+                for (let node of mutation.removedNodes)if (node instanceof Element) {
+                    let tagName = node.tagName.toLowerCase();
+                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.notifyListeners({
+                        type: 'remove',
+                        node
+                    });
+                }
+            }
+        });
+    }
+}
 /**
  * TODO:
  */ class SharedStylesController {
@@ -378,32 +420,23 @@ class EventHandler {
         this.stopObserving();
     }
     startObserving() {
-        null == this.observer && (this.observer = new MutationObserver((mutations)=>{
-            for (let mutation of mutations)if ('childList' === mutation.type && (mutation.addedNodes.length || mutation.removedNodes.length)) {
-                // console.log('! [+]', mutation.addedNodes);
-                // console.log('! [-]', mutation.removedNodes);
-                for (let node of mutation.addedNodes)if (node instanceof Element) {
-                    let tagName = node.tagName.toLowerCase();
-                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.addStyle(node);
-                }
-                for (let node of mutation.removedNodes)if (node instanceof Element) {
-                    let tagName = node.tagName.toLowerCase();
-                    ('style' == tagName || 'link' == tagName && 'stylesheet' == node.getAttribute('rel')) && this.removeStyle(node);
-                }
-            }
-        }));
-        // Start observer
-        let head = this.host.ownerDocument.head;
-        this.observer.observe(head, {
-            childList: !0,
-            subtree: !0
-        });
+        null == SharedStylesController.observer && (SharedStylesController.observer = new DocumentStylesObserver(this.host.ownerDocument)), // Start observing
+        SharedStylesController.observer.addListener(this.stylesUpdated);
     }
     stopObserving() {
-        null != this.observer && (this.observer.takeRecords(), this.observer.disconnect());
+        null != SharedStylesController.observer && SharedStylesController.observer.removeListener(this.stylesUpdated);
+    }
+    updated({ type , node  }) {
+        switch(type){
+            case 'add':
+                this.addStyle(node);
+                break;
+            case 'remove':
+                this.removeStyle(node);
+        }
     }
     constructor(host, sharedStyles){
-        this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this));
+        this.initialized = !1, this.styles = new WeakMap(), sharedStyles && (this.host = host, this.host.addController(this), this.stylesUpdated = (o)=>this.updated(o));
     }
 }
 
@@ -484,9 +517,33 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
         let parentDefaultValues = this instanceof LitWidget ? {} : Object.getPrototypeOf(this).defaultValues;
         return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
     }
+    /**
+   * TODO: Static getter
+   */ get static() {
+        return Object.getPrototypeOf(this).constructor;
+    }
+    /**
+   * TODO: describe override case
+   */ get sharedStyles() {
+        let sharedStyles = /*Object.getPrototypeOf(this).constructor*/ this.static.sharedStyles;
+        return null != sharedStyles || this.lightDOM || // If sharedStyles is "auto" and not lightDOM - then it will default to true
+        (sharedStyles = !0), sharedStyles;
+    }
+    /**
+   * TODO: describe override case
+   */ get lightDOM() {
+        return /*Object.getPrototypeOf(this).constructor*/ this.static.lightDOM;
+    }
     createRenderRoot() {
-        let tagName = this.tagName.toLowerCase(), rootElement = this.querySelector(`[data-root="${tagName}"]`);
-        return rootElement && rootElement.closest(tagName) == this ? rootElement : super.createRenderRoot();
+        let root;
+        let tagName = this.tagName.toLowerCase();
+        if (this.lightDOM) {
+            // Find light DOM root [data-root]
+            let rootElement = this.querySelector(`[data-root="${tagName}"]`);
+            null != rootElement && rootElement.closest(tagName) != this && (rootElement = null), // Use found root target or element itself as renderRoot
+            root = null != rootElement ? rootElement : this;
+        } else root = super.createRenderRoot();
+        return this.lightDOM && !0 === this.sharedStyles && console.warn(`[LitWidget "${tagName}"] Shared styles (sharedStyles = true) with lightDOM have no effect.`), root;
     }
     connectedCallback() {
         _class_private_field_loose_base(this, _events)[_events] || (_class_private_field_loose_base(this, _prepareEvents)[_prepareEvents](), _class_private_field_loose_base(this, _events)[_events] = new EventsController(this, this.events)), super.connectedCallback();
@@ -503,7 +560,7 @@ var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareE
         }), Object.defineProperty(this, _sharedStylesController, {
             writable: !0,
             value: void 0
-        }), _class_private_field_loose_base(this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(this, Object.getPrototypeOf(this).constructor.sharedStyles);
+        }), _class_private_field_loose_base(this, _sharedStylesController)[_sharedStylesController] = new SharedStylesController(this, this.sharedStyles);
     }
 }
 function prepareEvents() {
@@ -520,7 +577,9 @@ function prepareEvents() {
 }
 LitWidget.defaultValues = {}, /**
    * Specifies whether to import page styles into shadowRoot.
-   */ LitWidget.sharedStyles = !0, LitWidget.addInitializer((instance)=>{
+   */ LitWidget.sharedStyles = null, /**
+   * TODO:
+   */ LitWidget.lightDOM = !1, LitWidget.addInitializer((instance)=>{
     let klass = Object.getPrototypeOf(instance).constructor;
     if (void 0 !== klass.targets) for (let [target, options] of Object.entries(klass.targets))// Add target getter
     Object.defineProperty(instance, target, {

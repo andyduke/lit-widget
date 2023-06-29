@@ -1,3 +1,93 @@
+
+class DocumentStylesObserver {
+
+  document;
+
+  observer;
+
+  observing;
+
+  listeners;
+
+  constructor(document) {
+    this.document = document;
+    this.listeners = new Set();
+    this.observing = false;
+
+    this.observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+          // console.log('! [+]', mutation.addedNodes);
+          // console.log('! [-]', mutation.removedNodes);
+
+          for (const node of mutation.addedNodes) {
+            if (node instanceof Element) {
+              const tagName = node.tagName.toLowerCase();
+              if ((tagName == 'style') || (tagName == 'link' && node.getAttribute('rel') == 'stylesheet')) {
+                this.notifyListeners({type: 'add', node});
+              }
+            }
+          }
+
+          for (const node of mutation.removedNodes) {
+            if (node instanceof Element) {
+              const tagName = node.tagName.toLowerCase();
+              if ((tagName == 'style') || (tagName == 'link' && node.getAttribute('rel') == 'stylesheet')) {
+                this.notifyListeners({type: 'remove', node});
+              }
+            }
+          }
+
+        }
+      }
+    });
+  }
+
+  observe() {
+    if (this.observing) return;
+
+    this.observer.observe(
+      this.document.head,
+      {
+        childList: true,
+        subtree: true,
+      }
+    );
+
+    this.observing = true;
+  }
+
+  disconnect() {
+    if (!this.observing) return;
+
+    this.observer.takeRecords();
+    this.observer.disconnect();
+
+    this.observing = false;
+  }
+
+  addListener(fn) {
+    this.listeners.add(fn);
+    if (this.listeners.size > 0) {
+      this.observe();
+    }
+  }
+
+  removeListener(fn) {
+    this.listeners.delete(fn);
+    if (this.listeners.size == 0) {
+      this.disconnect();
+    }
+  }
+
+  notifyListeners(operation) {
+    for (const listener of this.listeners) {
+      listener(operation);
+    }
+  }
+
+}
+
 /**
  * TODO:
  */
@@ -5,7 +95,7 @@ export class SharedStylesController {
 
   host;
 
-  observer;
+  static observer;
 
   initialized = false;
 
@@ -16,6 +106,7 @@ export class SharedStylesController {
     if (sharedStyles) {
       this.host = host;
       this.host.addController(this);
+      this.stylesUpdated = (o) => this.updated(o);
     }
   }
 
@@ -80,51 +171,29 @@ export class SharedStylesController {
 
   startObserving() {
     // Create observer
-    if (this.observer == null) {
-      this.observer = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-          if (mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length)) {
-            // console.log('! [+]', mutation.addedNodes);
-            // console.log('! [-]', mutation.removedNodes);
-
-            for (const node of mutation.addedNodes) {
-              if (node instanceof Element) {
-                const tagName = node.tagName.toLowerCase();
-                if ((tagName == 'style') || (tagName == 'link' && node.getAttribute('rel') == 'stylesheet')) {
-                  this.addStyle(node);
-                }
-              }
-            }
-
-            for (const node of mutation.removedNodes) {
-              if (node instanceof Element) {
-                const tagName = node.tagName.toLowerCase();
-                if ((tagName == 'style') || (tagName == 'link' && node.getAttribute('rel') == 'stylesheet')) {
-                  this.removeStyle(node);
-                }
-              }
-            }
-
-          }
-        }
-      });
+    if (SharedStylesController.observer == null) {
+      SharedStylesController.observer = new DocumentStylesObserver(this.host.ownerDocument);
     }
 
-    // Start observer
-    const head = this.host.ownerDocument.head;
-    this.observer.observe(
-      head,
-      {
-        childList: true,
-        subtree: true,
-      }
-    );
+    // Start observing
+    SharedStylesController.observer.addListener(this.stylesUpdated);
   }
 
   stopObserving() {
-    if (this.observer != null) {
-      this.observer.takeRecords();
-      this.observer.disconnect();
+    if (SharedStylesController.observer != null) {
+      SharedStylesController.observer.removeListener(this.stylesUpdated);
+    }
+  }
+
+  updated({type, node}) {
+    switch(type) {
+      case 'add':
+        this.addStyle(node);
+        break;
+
+      case 'remove':
+        this.removeStyle(node);
+        break;
     }
   }
 
