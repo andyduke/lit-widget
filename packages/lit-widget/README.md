@@ -59,6 +59,14 @@ Why and when should you use Light DOM?
 
 Shadow DOM has a number of limitations that are useful when developing web applications, but not always suitable for website development.
 
+## 3. FUOC (мерцание нестилизованного контента)
+
+Web Components (custom elements) are 100% defined in JavaScript. That includes their HTML and CSS. Those are programmatically added to the DOM through APIs. By the time the browser has interpreted and executed that code, there is a good chance that the rendering pipeline has already put the custom element on the screen. Since it doesn't know about the element the first time around it will render it without the intended styling. After the JavaScript of the custom element definition is executed and the browser, therefore, knows about the CSS rules that apply to that element it can update the view.
+
+Flash of unstyled content (FOUC) can cause irritating layout shifts as well as reveal content that should have been progressively disclosed.
+
+FUOC occurs when using Shadow DOM in Web Components, but when using Light DOM there is no such problem, because all the content of the Web Component is immediately known to the browser and it can apply global page styles to it.
+
 # Differences from LitElement
 
 **LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements (Light DOM), thus Progressive Enhancement is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
