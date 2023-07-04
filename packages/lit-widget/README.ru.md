@@ -326,6 +326,37 @@ class HelloWidget extends LitWidget {
 
 ## Прослушивание событий
 
+**LitWidget** автоматически назначает указанные в виджете *публичные* методы в качестве обработчиков событий при подключении к DOM-элементу (в `connectedCallback`) и отключает их при отключении от DOM-элемента (в `disconnectedCallback`).
+
+Указать метод класса как обработчик какого-то DOM-события можно двумя способами, с помощью декторатора `@onEvent()` или свойства класса `events`.
+
+**Указание обработчика события с помощью декторатора**:
+```js
+class LookupWidget extends LitWidget {
+
+  @onEvent('input-field', 'input')
+  typing(event) {
+    ...
+  }
+
+}
+```
+
+**Указание обработчика события с помощью свойства `events`**:
+```js
+class LookupWidget extends LitWidget {
+
+  events = [
+    {target: 'input-field', event: 'input', handler: this.typing},
+  ];
+
+  typing(event) {
+    ...
+  }
+
+}
+```
+
 
 # Attributes
 
