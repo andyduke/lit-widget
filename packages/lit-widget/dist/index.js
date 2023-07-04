@@ -823,7 +823,9 @@
           return data;
       }, data;
   }
-  var _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents"), _sharedStylesController = /*#__PURE__*/ _class_private_field_loose_key("_sharedStylesController");
+  var // #endregion Default values
+  // #region Events
+  _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvents = /*#__PURE__*/ _class_private_field_loose_key("_prepareEvents"), _sharedStylesController = /*#__PURE__*/ _class_private_field_loose_key("_sharedStylesController");
   /**
    * Declarative binding to child elements for [LitElement](https://lit.dev/)
    * like [Github/Catalyst](https://catalyst.rocks/) and
@@ -888,7 +890,9 @@
           }), superClass && _set_prototype_of(subClass, superClass);
       }(LitWidget, LitWidgetBase);
       var protoProps, _proto = LitWidget.prototype;
-      return(/**
+      return(// #endregion Static helpers
+      // #region Default render
+      /**
      * Default renderer, renders Light DOM
      */ _proto.render = function() {
           return lit.html(_templateObject());
@@ -901,11 +905,14 @@
               root = null != rootElement ? rootElement : this;
           } else root = LitWidgetBase.prototype.createRenderRoot.call(this);
           return this.lightDOM && !0 === this.sharedStyles && console.warn('[LitWidget "' + tagName + '"] Shared styles (sharedStyles = true) with lightDOM have no effect.'), root;
-      }, _proto.connectedCallback = function() {
+      }, // #endregion Light DOM
+      // #region Lifecycle
+      _proto.connectedCallback = function() {
           _class_private_field_loose_base(this, _events)[_events] || (_class_private_field_loose_base(this, _prepareEvents)[_prepareEvents](), _class_private_field_loose_base(this, _events)[_events] = new EventsController(this, this.events)), LitWidgetBase.prototype.connectedCallback.call(this);
       }, _proto.disconnectedCallback = function() {
           LitWidgetBase.prototype.disconnectedCallback.call(this), void 0 !== this._findCache && (this._findCache = {});
-      }, LitWidget.widget = function(name) {
+      }, // #region Static helpers
+      /** TODO: ??? */ LitWidget.widget = function(name) {
           return function(proto, options) {
               LitWidget.define(name, proto, options);
           };
@@ -913,19 +920,19 @@
           customElements.define("w-" + name, constructor, options);
       }, protoProps = [
           {
-              key: "defaultValues",
-              get: function() {
-                  if (null != this._defaultValues) return this._defaultValues;
-                  var parentDefaultValues = (null != LitWidget && "undefined" != typeof Symbol && LitWidget[Symbol.hasInstance] ? !!LitWidget[Symbol.hasInstance](this) : this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
-                  return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
-              }
-          },
-          {
               key: "static",
               get: /**
      * TODO: Static getter
      */ function() {
                   return Object.getPrototypeOf(this).constructor;
+              }
+          },
+          {
+              key: "defaultValues",
+              get: function() {
+                  if (null != this._defaultValues) return this._defaultValues;
+                  var parentDefaultValues = (null != LitWidget && "undefined" != typeof Symbol && LitWidget[Symbol.hasInstance] ? !!LitWidget[Symbol.hasInstance](this) : this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+                  return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
               }
           },
           {
@@ -954,6 +961,7 @@
               id: index
           }, event);
       });
+      // Seal events
       Object.defineProperty(this, "events", {
           configurable: !0,
           get: function() {
@@ -961,42 +969,53 @@
           }
       });
   }
-  LitWidget.defaultValues = {}, /**
+  // #endregion Default render
+  // #region Default values
+  LitWidget.defaultValues = {}, // #endregion Events
+  // #region Shared styles
+  /**
      * Specifies whether to import page styles into shadowRoot.
-     */ LitWidget.sharedStyles = null, /**
+     */ LitWidget.sharedStyles = null, // #endregion Shared styles
+  // #region Light DOM
+  /**
      * TODO:
-     */ LitWidget.lightDOM = !1, LitWidget.addInitializer(function(instance) {
+     */ LitWidget.lightDOM = !1, // #region Targets getters
+  LitWidget.addInitializer(function(instance) {
       var klass = Object.getPrototypeOf(instance).constructor;
       if (void 0 !== klass.targets) for(var _step, _iterator = _create_for_of_iterator_helper_loose(Object.entries(klass.targets)); !(_step = _iterator()).done;)!function() {
-          var _step_value = _step.value, target = _step_value[0], options = _step_value[1];
+          var _options_property, _step_value = _step.value, target = _step_value[0], options = _step_value[1];
           // Add target getter
-          Object.defineProperty(instance, target, {
+          Object.defineProperty(instance, null != (_options_property = options.property) ? _options_property : target, {
               configurable: !0,
               get: function() {
-                  if (void 0 === this._findCache && (this._findCache = {}), this._findCache[target]) return this._findCache[target];
-                  var _this__findCache, _, targetElement = null != (_ = (_this__findCache = this._findCache)[target]) ? _ : _this__findCache[target] = this.findTarget(this.tagName, target, options.selector);
+                  if (void 0 === this._findCache && (this._findCache = {}), (null == (_options_cache = options.cache) || _options_cache) && this._findCache[target]) return this._findCache[target];
+                  var _options_cache, _this__findCache, _, targetElement = null != (_ = (_this__findCache = this._findCache)[target]) ? _ : _this__findCache[target] = this.findTarget(this.tagName, target, options.selector);
                   return null == targetElement ? console.error('[LitWidget "' + klass.name + '"] Target "' + target + '" not found.') : ((!0 === options.template || "template" == targetElement.tagName.toLowerCase() && !1 !== options.template) && (targetElement = templateContent_js.templateContent(targetElement)), this._findCache[target] = targetElement), targetElement;
               }
           });
       }();
       if (void 0 !== klass.targetsAll) for(var _step1, _iterator1 = _create_for_of_iterator_helper_loose(Object.entries(klass.targetsAll)); !(_step1 = _iterator1()).done;)!function() {
-          var _step_value = _step1.value, target = _step_value[0], options = _step_value[1];
+          var _options_property, _step_value = _step1.value, target = _step_value[0], options = _step_value[1];
           // Add target getter
-          Object.defineProperty(instance, target, {
+          Object.defineProperty(instance, null != (_options_property = options.property) ? _options_property : target, {
               configurable: !0,
               get: function() {
-                  var _this__findCache, _;
-                  return void 0 === this._findCache && (this._findCache = {}), null != (_ = (_this__findCache = this._findCache)[target]) ? _ : _this__findCache[target] = this.findTargets(this.tagName, target, options.selector);
+                  var _options_cache, _this__findAllCache, _;
+                  return (void 0 === this._findAllCache && (this._findAllCache = {}), (null == (_options_cache = options.cache) || _options_cache) && this._findAllCache[target]) ? this._findAllCache[target] : null != (_ = (_this__findAllCache = this._findAllCache)[target]) ? _ : _this__findAllCache[target] = this.findTargets(this.tagName, target, options.selector);
+              // return this._findAllCache[target] ??= this.findTargets(this.tagName, target, options.selector);
               }
           });
       }();
   });
+   // #endregion Targets getters
 
   function _instanceof(left, right) {
       return null != right && "undefined" != typeof Symbol && right[Symbol.hasInstance] ? !!right[Symbol.hasInstance](left) : left instanceof right;
   }
   /**
    * Decorator to bind a property to a child HTML element
+   *
+   * TODO: examples
    *
    * By default, it binds to a child element with the `data-target` attribute equal to
    * the component's tag name and the name of the property connected by a dot,
@@ -1011,25 +1030,32 @@
    * automatic conversion takes place using the Lit's directive `templateContent`.
    * To disable this behavior - you must specify `template: false`.
    *
-   * @param {{selector: string, template: Boolean}} options - Optional parameters for binding.
+   * @param {{name: string, selector: string, cache: Boolean, template: Boolean}} options - Optional parameters for binding.
+   * @param {string} options.name - Target name to find the element to which the property will be bound.
    * @param {string} options.selector - CSS selector to find the element to which the property will be bound.
+   * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
    * @param {Boolean} options.template - Controls how the `<template>` tag is converted when bound.
-   */ function target(param, name) {
-      var selector = (void 0 === param ? {} : param).selector;
-      void 0 === name && (name = null);
+   */ function target(param, propertyName) {
+      var _ref = void 0 === param ? {} : param, name = _ref.name, selector = _ref.selector, cache = _ref.cache, template = _ref.template;
+      void 0 === propertyName && (propertyName = null);
       var wrapper = function(instance, property) {
           var klass = instance.constructor;
           if (!_instanceof(instance, LitWidget)) throw Error('[LitWidget] The class "' + klass.name + '" is not a descendant of LitWidget.');
-          void 0 === klass.targets && (klass.targets = {}), klass.targets[property] = {
-              selector: selector
+          void 0 === klass.targets && (klass.targets = {}), klass.targets[null != name ? name : property] = {
+              property: property,
+              selector: selector,
+              cache: cache,
+              template: template
           };
       };
-      if (null == name) return wrapper;
+      if (null == propertyName) return wrapper;
       var instance = arguments[0];
-      wrapper(instance, name);
+      wrapper(instance, propertyName);
   }
   /**
    * Decorator to bind a property to an array of HTML child elements
+   *
+   * TODO: examples
    *
    * By default, it binds to an array of child elements with a `data-targets`
    * attribute equal to the component's tag name and the name of the property
@@ -1040,24 +1066,30 @@
    * If a CSS selector is specified, all elements with the matching selector
    * are searched only among the child elements of the component tag.
    *
-   * @param {{selector: string}} options - Optional parameters for binding.
+   * @param {{name: string, selector: string, cache: Boolean}} options - Optional parameters for binding.
+   * @param {string} options.name - Target name to find the elements to which the property will be bound.
    * @param {string} options.selector - CSS selector to find the elements to which the property will be bound.
-   */ function targets(param, name) {
-      var selector = (void 0 === param ? {} : param).selector;
-      void 0 === name && (name = null);
+   * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
+   */ function targets(param, propertyName) {
+      var _ref = void 0 === param ? {} : param, name = _ref.name, selector = _ref.selector, cache = _ref.cache;
+      void 0 === propertyName && (propertyName = null);
       var wrapper = function(instance, property) {
           var klass = instance.constructor;
           if (!_instanceof(instance, LitWidget)) throw Error('[LitWidget] The class "' + klass.name + '" is not a descendant of LitWidget.');
-          void 0 === klass.targetsAll && (klass.targetsAll = {}), klass.targetsAll[property] = {
-              selector: selector
+          void 0 === klass.targetsAll && (klass.targetsAll = {}), klass.targetsAll[null != name ? name : property] = {
+              property: property,
+              selector: selector,
+              cache: cache
           };
       };
-      if (null == name) return wrapper;
+      if (null == propertyName) return wrapper;
       var instance = arguments[0];
-      wrapper(instance, name);
+      wrapper(instance, propertyName);
   }
   /**
    * Decorator to attach a method as an HTML child element event handler
+   *
+   * TODO: examples
    *
    * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
    *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.

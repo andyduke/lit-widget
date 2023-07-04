@@ -47,6 +47,9 @@ import { LitWidgetBase } from './lit-widget-base';
  */
 export class LitWidget extends LitWidgetBase {
 
+  // #region Static helpers
+
+  /** TODO: ??? */
   static widget(name) {
     return function(proto, options) {
       LitWidget.define(name, proto, options);
@@ -58,11 +61,26 @@ export class LitWidget extends LitWidgetBase {
   }
 
   /**
+   * TODO: Static getter
+   */
+	get static() {
+    return Object.getPrototypeOf(this).constructor;
+  }
+
+  // #endregion Static helpers
+
+  // #region Default render
+
+  /**
    * Default renderer, renders Light DOM
    */
   render() {
     return html`<slot></slot>`;
   }
+
+  // #endregion Default render
+
+  // #region Default values
 
   static defaultValues = {}
 
@@ -80,6 +98,10 @@ export class LitWidget extends LitWidgetBase {
     return this._defaultValues;
   }
 
+  // #endregion Default values
+
+  // #region Events
+
   #events;
 
   #prepareEvents() {
@@ -92,6 +114,7 @@ export class LitWidget extends LitWidgetBase {
       return {id: index, ...event};
     });
 
+    // Seal events
     Object.defineProperty(this, 'events', {
     	configurable: true,
       get() {
@@ -100,12 +123,9 @@ export class LitWidget extends LitWidgetBase {
     });
   }
 
-  /**
-   * TODO: Static getter
-   */
-	get static() {
-    return Object.getPrototypeOf(this).constructor;
-  }
+  // #endregion Events
+
+  // #region Shared styles
 
   /**
    * Specifies whether to import page styles into shadowRoot.
@@ -128,6 +148,10 @@ export class LitWidget extends LitWidgetBase {
   }
 
   #sharedStylesController = new SharedStylesController(this, this.sharedStyles);
+
+  // #endregion Shared styles
+
+  // #region Light DOM
 
   /**
    * TODO:
@@ -168,6 +192,10 @@ export class LitWidget extends LitWidgetBase {
     return root;
   }
 
+  // #endregion Light DOM
+
+  // #region Lifecycle
+
   connectedCallback() {
     if (!this.#events) {
       this.#prepareEvents();
@@ -185,7 +213,11 @@ export class LitWidget extends LitWidgetBase {
     }
   }
 
+  // #endregion Lifecycle
+
 }
+
+// #region Targets getters
 
 LitWidget.addInitializer((instance) => {
   const klass = Object.getPrototypeOf(instance).constructor;
@@ -193,14 +225,16 @@ LitWidget.addInitializer((instance) => {
   if (typeof klass.targets !== 'undefined') {
     for (const [target, options] of Object.entries(klass.targets)) {
       // Add target getter
-      Object.defineProperty(instance, target, {
+      Object.defineProperty(instance, options.property ?? target, {
         configurable: true,
         get() {
           if (typeof this._findCache === 'undefined') {
             this._findCache = {};
           }
 
-          if (this._findCache[target]) {
+          const cache = options.cache ?? true;
+
+          if (cache && this._findCache[target]) {
             return this._findCache[target];
           } else {
             let targetElement = this._findCache[target] ??= this.findTarget(this.tagName, target, options.selector);
@@ -223,15 +257,27 @@ LitWidget.addInitializer((instance) => {
   if (typeof klass.targetsAll !== 'undefined') {
     for (const [target, options] of Object.entries(klass.targetsAll)) {
       // Add target getter
-      Object.defineProperty(instance, target, {
+      Object.defineProperty(instance, options.property ?? target, {
         configurable: true,
         get() {
-          if (typeof this._findCache === 'undefined') {
-            this._findCache = {};
+          if (typeof this._findAllCache === 'undefined') {
+            this._findAllCache = {};
           }
-          return this._findCache[target] ??= this.findTargets(this.tagName, target, options.selector);
+
+          const cache = options.cache ?? true;
+
+          if (cache && this._findAllCache[target]) {
+            return this._findAllCache[target];
+          } else {
+            const targetElements = this._findAllCache[target] ??= this.findTargets(this.tagName, target, options.selector);
+            return targetElements;
+          }
+
+          // return this._findAllCache[target] ??= this.findTargets(this.tagName, target, options.selector);
         }
       });
     }
   }
 });
+
+// #endregion Targets getters

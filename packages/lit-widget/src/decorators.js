@@ -3,6 +3,8 @@ import { LitWidget } from './lit-widget';
 /**
  * Decorator to bind a property to a child HTML element
  *
+ * TODO: examples
+ *
  * By default, it binds to a child element with the `data-target` attribute equal to
  * the component's tag name and the name of the property connected by a dot,
  * like this - `tag-name.property-name`.
@@ -16,11 +18,13 @@ import { LitWidget } from './lit-widget';
  * automatic conversion takes place using the Lit's directive `templateContent`.
  * To disable this behavior - you must specify `template: false`.
  *
- * @param {{selector: string, template: Boolean}} options - Optional parameters for binding.
+ * @param {{name: string, selector: string, cache: Boolean, template: Boolean}} options - Optional parameters for binding.
+ * @param {string} options.name - Target name to find the element to which the property will be bound.
  * @param {string} options.selector - CSS selector to find the element to which the property will be bound.
+ * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
  * @param {Boolean} options.template - Controls how the `<template>` tag is converted when bound.
  */
-export function target({ selector } = {}, name = null) {
+export function target({ name, selector, cache, template } = {}, propertyName = null) {
   const wrapper = function(instance, property) {
     const klass = instance.constructor;
     if (!(instance instanceof LitWidget)) {
@@ -30,19 +34,21 @@ export function target({ selector } = {}, name = null) {
     if (typeof klass.targets === 'undefined') {
       klass.targets = {};
     }
-    klass.targets[property] = {selector};
+    klass.targets[name ?? property] = {property, selector, cache, template};
   };
 
-  if (name == null) {
+  if (propertyName == null) {
     return wrapper;
   } else {
     const instance = arguments[0];
-    wrapper(instance, name);
+    wrapper(instance, propertyName);
   }
 }
 
 /**
  * Decorator to bind a property to an array of HTML child elements
+ *
+ * TODO: examples
  *
  * By default, it binds to an array of child elements with a `data-targets`
  * attribute equal to the component's tag name and the name of the property
@@ -53,10 +59,12 @@ export function target({ selector } = {}, name = null) {
  * If a CSS selector is specified, all elements with the matching selector
  * are searched only among the child elements of the component tag.
  *
- * @param {{selector: string}} options - Optional parameters for binding.
+ * @param {{name: string, selector: string, cache: Boolean}} options - Optional parameters for binding.
+ * @param {string} options.name - Target name to find the elements to which the property will be bound.
  * @param {string} options.selector - CSS selector to find the elements to which the property will be bound.
+ * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
  */
-export function targets({ selector } = {}, name = null) {
+export function targets({ name, selector, cache } = {}, propertyName = null) {
   const wrapper = function(instance, property) {
     const klass = instance.constructor;
     if (!(instance instanceof LitWidget)) {
@@ -66,19 +74,21 @@ export function targets({ selector } = {}, name = null) {
     if (typeof klass.targetsAll === 'undefined') {
       klass.targetsAll = {};
     }
-    klass.targetsAll[property] = {selector};
+    klass.targetsAll[name ?? property] = {property, selector, cache};
   };
 
-  if (name == null) {
+  if (propertyName == null) {
     return wrapper;
   } else {
     const instance = arguments[0];
-    wrapper(instance, name);
+    wrapper(instance, propertyName);
   }
 }
 
 /**
  * Decorator to attach a method as an HTML child element event handler
+ *
+ * TODO: examples
  *
  * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
  *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
