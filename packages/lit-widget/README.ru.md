@@ -300,12 +300,12 @@ class HelloWidget extends LitWidget {
 }
 ```
 
-В остальном параметры идентичны парметрам декоратора `@target`.
+В остальном параметры идентичны параметрам декоратора [`@target`](#target).
 
 
 #### static targetsAll
 
-Множественные цели задаются аналогично обычным (см .[static targets](#static-targets)):
+Множественные цели задаются аналогично обычным (см. [static targets](#static-targets)):
 ```js
 class HelloWidget extends LitWidget {
 
@@ -321,7 +321,7 @@ class HelloWidget extends LitWidget {
 }
 ```
 
-Описание параметров см. в [`@targets`](#targets).
+Описание параметров см. в описании декоратора [`@targets`](#targets).
 
 
 ## Прослушивание событий
