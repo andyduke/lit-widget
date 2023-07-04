@@ -265,7 +265,7 @@ customElements.define('w-profile', ProfileWidget);
 
 #### static targets
 
-Цели задаются в виде списка "ключ-значение", где в качестве ключа выступает имя цели, а в виде значения - объект, с параметрами. Все параметры не обязатальные, если ни один параметр не указан - то необходимо просто указать пустой объект `{}`.
+Цели задаются в виде списка "ключ-значение", где в качестве ключа выступает имя цели, а в виде значения - объект с параметрами. Все параметры необязатальные, если ни один параметр не указан - то необходимо просто указать пустой объект `{}`.
 
 ```js
 class HelloWidget extends LitWidget {
@@ -277,6 +277,7 @@ class HelloWidget extends LitWidget {
       cache: Boolean = true,
       template: Boolean = false
     },
+    target_name2: {},
     ...
   }
 
@@ -285,12 +286,26 @@ class HelloWidget extends LitWidget {
 
 Параметр `property` позволяет задать имя свойства класса, которое будет связано с целевым элементом, если этот параметр не указан - используется имя цели.
 
+В примере ниже объявляются две цели: элемент цели с именем "person" будет доступен в классе через свойство `this.person`, а элемент цели "avatar" будет доступен в классе через свойство `this.person_image`.
+```js
+class HelloWidget extends LitWidget {
+
+  static targets = {
+    avatar: {
+      property: 'person_image'
+    },
+    person: {}
+  }
+
+}
+```
+
 В остальном параметры идентичны парметрам декоратора `@target`.
 
 
 #### static targetsAll
 
-Множественные цели задаются аналогично обычным как и обычные в [static targets](#static-targets):
+Множественные цели задаются аналогично обычным (см .[static targets](#static-targets)):
 ```js
 class HelloWidget extends LitWidget {
 
