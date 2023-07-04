@@ -1241,7 +1241,7 @@
               var name = this.toKeyName(value), modifier = this.keyModifiers[name];
               // Validate modifier
               if (value.length > 1 && !modifier && !this.keyAliases[value] && !this.keyCodes[name]) throw TypeError('Unknown shortcut modifier: "' + value + '"');
-              1 !== length && modifier || (this.useKey ? result.key = name : result.which = this.toKeyCode(value)), modifier && (result[modifier] = !optional || null);
+              1 !== length && modifier || (!0 === this.useKey ? result.key = name : result.which = this.toKeyCode(value)), modifier && (result[modifier] = !optional || null);
           }
           return result;
       }, _proto.isMatchEvent = function(event) {

@@ -129,7 +129,7 @@ export class KeyboardShortcut {
 
       // Set key
       if (length === 1 || !modifier) {
-        if (!!this.useKey) {
+        if (this.useKey === true) {
           result.key = name;
         } else {
           result.which = this.toKeyCode(value);
