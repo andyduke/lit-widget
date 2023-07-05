@@ -509,17 +509,16 @@
               for(var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++)args[_key] = arguments[_key];
               return event.handler.apply(_this.host, args);
           };
-          // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+          // Handle conditional event (eventName = {eventHandler: string, isMatch: function})
           if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
               e.target.matches(event.selector) && prevHandler(e);
           }), "object" == typeof eventName) {
               var prevHandler, isMatch, prevHandler1, preset = eventName;
-              if (null == preset.eventName || "function" != typeof preset.isMatch) throw Error("[LitWidget.EventsController]: Invalid event preset: " + preset);
+              if (null == preset.eventName || "function" != typeof preset.isMatch) throw Error("[LitWidget.EventsController]: Invalid conditional event: " + preset);
               // Extract eventName from preset
               eventName = preset.eventName, isMatch = preset.isMatch, prevHandler1 = handler, // Wrap handler
               handler = function(e) {
-                  isMatch(e) && // TODO: ??? Patch Event? For example: add 'shortcut' property.
-                  prevHandler1(e);
+                  isMatch(e) && prevHandler1(e);
               };
           }
           return new EventHandler(eventName, handler);
@@ -1093,24 +1092,24 @@
    *
    * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
    *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
-   * @param {string} event - The name of the DOM event to which the handler is attached.
-   * @param {{debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
-   * TODO: @param options.selector
-   * @param options.debounce - Delay to debounce the execution of the event handler,
+   * @param {string|{eventName: string, isMatch: function}} event - The name of the DOM event to which the handler is attached.
+   * @param {{selector: string, debounce: (Number|string), throttle: (Number|string), wrapper: function(function, this)}} options - Optional parameters for attaching an event.
+   * @param {string} options.selector - This parameter allows you to filter the triggering of delegated events by CSS selector.
+   * @param {string|number} options.debounce - Delay to debounce the execution of the event handler,
    *     you can specify the value in milliseconds as a number or in string format
    *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
    *     This can be handy for events such as key presses or "input" in input fields.
-   * @param options.throttle - Delay to throttle the execution of the event handler,
+   * @param {string|number} options.throttle - Delay to throttle the execution of the event handler,
    *     you can specify the value in milliseconds as a number or in string format
    *     with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
    *     This can be handy for "resize" or "scroll" events.
-   * @param options.wrapper - Wrapper function to apply additional decorators to the event handler;
+   * @param {function} options.wrapper - Wrapper function to apply additional decorators to the event handler;
    *     can be useful for example to apply a debounce decorator with a delay set at runtime:
    *     `onEvent(..., wrapper: (fn, self) => debounce(fn, self.delay) )`.
    *     The first parameter in the wrapper is the event handler method,
    *     the second is a reference to the class instance.
    */ function onEvent(target, event, param) {
-      var _ref = void 0 === param ? {} : param, debounce = _ref.debounce, throttle = _ref.throttle, wrapper = _ref.wrapper;
+      var _ref = void 0 === param ? {} : param, selector = _ref.selector, debounce = _ref.debounce, throttle = _ref.throttle, wrapper = _ref.wrapper;
       return function(instance, property) {
           var klass = instance.constructor;
           if (!_instanceof(instance, LitWidget)) throw Error('[LitWidget] The class "' + klass.name + '" is not a descendant of LitWidget.');
@@ -1118,10 +1117,10 @@
               target: target,
               handler: instance[property],
               event: event,
-              // TODO: selector
-              debounce: debounce || null,
-              throttle: throttle || null,
-              wrapper: wrapper || null
+              selector: selector,
+              debounce: debounce,
+              throttle: throttle,
+              wrapper: wrapper
           });
       };
   }

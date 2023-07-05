@@ -123,11 +123,11 @@ export class EventsController {
       })();
     }
 
-    // Handle event preset (eventName = {eventHandler: string, isMatch: function})
+    // Handle conditional event (eventName = {eventHandler: string, isMatch: function})
     if (typeof eventName == 'object') {
       const preset = eventName;
       if ((preset.eventName == null) || (typeof preset.isMatch !== 'function')) {
-        throw new Error(`[LitWidget.EventsController]: Invalid event preset: ${preset}`);
+        throw new Error(`[LitWidget.EventsController]: Invalid conditional event: ${preset}`);
       }
 
       // Extract eventName from preset
@@ -139,7 +139,6 @@ export class EventsController {
         const prevHandler = handler;
         return (e) => {
           if (isMatch(e)) {
-            // TODO: ??? Patch Event? For example: add 'shortcut' property.
             prevHandler(e);
           }
         };
