@@ -555,9 +555,84 @@ class SampleWidget extends LitWidget {
 ```
 
 
-# Attributes
+# Зачения по умолчанию
 
-## Default values pattern
+Часто Веб-компоненты создаются с целью их многократного использования в различных сценариях. Для этого в них добавляют возможность настройки, например через атрибуты.
+
+В `LitElement` [атрибуты компонента связаны со свойствами класса](https://lit.dev/docs/components/properties/#attributes), для которых можно задать значения по умолчанию. Эти значения будут использоваться, если атрибут не указан в HTML-разметке компонента:
+```js
+@customElement('my-element')
+class MyElement extends LitElement {
+
+  @property({type: String})
+  mode = 'expand';
+
+  @property({type: String})
+  expandedClass = 'expanded';
+
+}
+```
+```html
+<my-element mode="collapse"></my-element>
+```
+
+
+Вместо просто указания значений по умолчанию, в **LitWidget** можно вынести значения по умолчанию в отдельное статическое свойство `defaultValues` и использовать эти значения для инициализации свойств:
+```js
+class MyElement extends LitWidget {
+
+  static defaultValues = {
+    mode: 'expand',
+    expandedClass: 'expanded',
+  }
+
+  @property({type: String})
+  mode = this.defaultValues.mode;
+
+  @property({type: String})
+  expandedClass = this.defaultValues.expandedClass;
+
+}
+```
+
+Такой подход позволяет сделать компоненты более настраиваемыми, появляется возможность настраивать значения по умолчанию глобально для всего компонента:
+```js
+MyElement.defaultValues.expandedClass = 'ui-expanded';
+```
+
+Это может быть удобным, если компоненты универсальные и необходимо иметь возможность настроить их поведение для конкретного проекта, но не хочется указывать одни и теже значения при каждом использовании компонентов.
+
+> **Внимание!** Внутри компонента необходимо обращаться к `defaultValues` как в свойству класса, а не как к статическому свойству.
+
+**LitWidget** автоматически создает геттер свойства класса, который объединяет все значения `defaultValues` из всей цепочки наследования класса:
+```js
+class MyElement extends LitWidget {
+
+  static defaultValues = {
+    mode: 'expand',
+    expandedClass: 'expanded',
+  }
+
+}
+
+class MyCustomElement extends MyElement {
+
+  static defaultValues = {
+    hint: 'Click to expand',
+    expandedClass: 'custom-expanded',
+  }
+
+  connectedCallback() {
+    console.log(this.defaultValues);
+  }
+
+}
+```
+
+Пример выше выведет в консоль:
+```json
+{ mode: "expand", expandedClass: "custom-expanded", hint: "Click to expand" }
+```
 
 
 # Совместное использование стилей CSS
