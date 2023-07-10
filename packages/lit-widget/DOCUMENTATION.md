@@ -346,6 +346,8 @@ See the [`@targets`](#targets) decorator for a description of the parameters.
 
 Event handlers are added to target elements specified in the DOM using the `data-target` and `data-targets` attributes (see [Targets](#targets)). One handler can be added to several elements at the same time, as well as handle several events at the same time.
 
+> **LitWidget** tracks the addition and removal of elements with target attributes (`data-target` and `data-targets`) in the Light DOM and Shadow DOM and automatically adds and removes handlers.
+
 There are two ways to specify a class method as a DOM event handler, using the [`@onEvent()`](#onevent-decorator-syntax) decorator or the [`events`](#syntax-of-the-events-property) class property.
 
 **Specifying an event handler with a decorator:**
