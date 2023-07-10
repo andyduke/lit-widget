@@ -168,7 +168,406 @@ Also, **LitWidget** makes all page styles available in **shadowRoot** by default
 
 **LitWidget** allows Light DOM (and Shadow DOM too) to specify elements as targets for binding to class properties and handlers.
 
-TBD
+### Targets
+
+Targets are specified using the `data-target` attribute, as the value of the attribute, you must specify the name of the Web Component tag and, separated by a dot, the name of the target declared in the widget:
+```html
+<w-hello>
+  <input type="text" data-target="w-hello.input" />
+</w-hello>
+```
+> The tag name prefix is needed to avoid conflicts when inside the Light DOM of one widget there is another widget that might have a target with the same name.
+
+### Multiple targets
+
+If you need to specify multiple elements as an array of targets, you must use the `data-targets` attribute, where the value is the Web Component tag name and the target name, as in the case of a single `data-target`:
+```html
+<w-profile>
+  <input type="text" name="home-email" data-targets="w-hello.emails" />
+  <input type="text" name="work-email" data-targets="w-hello.emails" />
+</w-profile>
+```
+
+## Binding child elements to targets
+
+The binding of targets in the widget class is specified either using the [`@target`](#target) and [`@targets`](#targets) decorators, or through the [`targets`](#static-targets) and [`targetsAll`](#static-targetsall) static properties.
+
+**Binding with decorators:**
+```js
+@customElement('w-profile')
+class ProfileWidget extends LitWidget {
+
+  // In Light DOM/Shadow DOM will be available
+  // bind target data-target="w-profile.name"
+  @target name;
+
+  // Light DOM/Shadow DOM will be available
+  // multiple binding targets
+  // data-targets="w-profile.emails"
+  @targets({name: 'emails'}) emailList;
+
+}
+```
+
+**Binding with static properties:**
+```js
+class ProfileWidget extends LitWidget {
+
+  // In Light DOM/Shadow DOM will be available
+  // bind target data-target="w-profile.name"
+  // for property "this.name"
+  static targets = {
+    name: {}
+  }
+
+  // In Light DOM/Shadow DOM will be available
+  // multiple binding targets
+  // data-targets="w-profile.emails"
+  // for the "this.emailList" property
+  static targetsAll = {
+    emails: {property: 'emailList'}
+  }
+
+}
+customElements.define('w-profile', ProfileWidget);
+```
+
+### Decorator syntax
+
+#### `@target`
+
+```js
+@target[({ name?, selector?, cache = true, template = false })]
+```
+
+The property on which the decorator is applied will contain a reference to the target HTML element, or `null` if the target element is not found.
+
+
+##### name, selector
+
+By default, the `@target` decorator uses the property name as the target name:
+```js
+@target name;
+```
+...but you can pass a target name other than a property name to the decorator, like "profile-name":
+```js
+@target({name: 'profile-name'}) name;
+```
+...or CSS selector:
+```js
+@target({selector: '.profile-name'}) name;
+```
+
+##### cache
+
+With the `cache` parameter, you can control the caching of the element query operation. By default, the `cache` parameter is set to `true`, so when the property is accessed, the target element is queried and the result is cached. If you want to query an element every time you access, you must set the `cache` parameter to `false`.
+
+##### template
+
+The `template` parameter allows you to specify that the `<template>` tag is used as the target element. In this case, the class property will point not to the tag, but to the content of the `<template>` tag (see [Lit#templateContent](https://lit.dev/docs/templates/directives/#templatecontent)).
+
+#### `@targets`
+
+```js
+@targets[({ name?, selector?, cache = true })]
+```
+
+The property to which this decorator is applied will always contain an array of elements, including an empty array if no target element is found.
+
+The `@targets` decorator takes almost the same parameters as [`@target`](#target), except for the `template` parameter.
+
+
+### Syntax of static properties
+
+#### static targets
+
+Targets are specified as a key-value list, where the key is the name of the target, and the value is an object with parameters. All parameters are optional, if no parameter is specified, then you just need to specify an empty object `{}`.
+
+```js
+class HelloWidget extends LitWidget {
+
+  static targets = {
+    target_name: {
+      property: String,
+      selector: String,
+      cache: Boolean = true,
+      template: Boolean = false
+    },
+    target_name2: {},
+    ...
+  }
+
+}
+```
+
+The `property` parameter allows you to specify the name of the class property that will be associated with the target element, if this parameter is not specified, the target name is used.
+
+The example below declares two targets: a target element named "person" will be available in the class via the `this.person` property, and the target element "avatar" will be available in the class via the `this.person_image` property:
+```js
+class HelloWidget extends LitWidget {
+
+  static targets = {
+    avatar: {
+      property: 'person_image'
+    },
+    person: {}
+  }
+
+}
+```
+
+Otherwise, the parameters are identical to those of the [`@target`](#target) decorator.
+
+
+#### static targetsAll
+
+Multiple targets are defined in the same way as single targets (see [static targets](#static-targets)):
+```js
+class HelloWidget extends LitWidget {
+
+  static targetsAll = {
+    target_name: {
+      property: String,
+      selector: String,
+      cache: Boolean = true
+    },
+    ...
+  }
+
+}
+```
+
+See the [`@targets`](#targets) decorator for a description of the parameters.
+
+
+## Listening to events
+
+**LitWidget** automatically adds specially marked *public* class methods as event handlers when connected to a DOM element (in `connectedCallback`) and removes them when disconnected from a DOM element (in `disconnectedCallback`).
+
+Event handlers are added to target elements specified in the DOM using the `data-target` and `data-targets` attributes (see [Targets](#targets)). One handler can be added to several elements at the same time, as well as handle several events at the same time.
+
+There are two ways to specify a class method as a DOM event handler, using the [`@onEvent()`](#onevent-decorator-syntax) decorator or the [`events`](#syntax-of-the-events-property) class property.
+
+**Specifying an event handler with a decorator:**
+```js
+class LookupWidget extends LitWidget {
+
+  @onEvent('input-field', 'input')
+  typing(event) {
+    ...
+  }
+
+}
+```
+
+**Specifying an event handler using the `events` property:**
+```js
+class LookupWidget extends LitWidget {
+
+  events = [
+    {target: 'input-field', event: 'input', handler: this.typing},
+  ];
+
+  typing(event) {
+    ...
+  }
+
+}
+```
+
+
+### `@onEvent` decorator syntax
+
+```js
+onEvent(target, event, { [selector], [debounce], [throttle], [wrapper] })
+```
+
+#### target
+
+The name of the target to search for the HTML element in the DOM (see [Targets](#targets)).
+
+You can also pass an existing HTML element, `window` or `document` object to add an event handler to, for example, `document.body` or `window`:
+```js
+class SampleWidget extends LitWidget {
+
+  @onEvent(window, 'resize')
+  windowSizeChanged(event) {
+    ...
+  }
+
+}
+```
+
+#### event
+
+The name of the DOM event to which the handler is added.
+
+#### selector
+
+This parameter allows you to filter the triggering of delegated events by CSS selector.
+
+> Using event delegation can reduce the number of event listeners used and therefore improve performance.
+
+For example, instead of adding an event handler to each list item, you can add an event handler to the list itself, but filter by the list item selector:
+```js
+@customElement('w-sample')
+class SampleWidget extends LitWidget {
+
+  @onEvent('list', 'click', { selector: '.list-item' })
+  itemClick(event) {
+    ...
+  }
+
+}
+```
+```html
+<w-sample>
+  ...
+  <div data-target="w-sample.list">
+    <div class="list-item">Item 1</div>
+    <div class="list-item">Item 2</div>
+    <div class="list-item">Item 3</div>
+    <div class="list-separator"></div>
+    <div class="list-item">Item 4</div>
+  </div>
+  ...
+</w-sample>
+```
+In the example above, the `itemClick(...)` handler will only fire on clicks on items in the `<div class="list-item">...</div>` list, but not on `<div class="list -separator"></div>`.
+
+
+#### debounce, throttle
+
+Optionally, you can set the frequency of the event handler firing, using the `debounce` or `throttle` parameters.
+
+> **Attention!** You cannot specify both parameters at the same time.
+
+* Debounce -
+  postpones the handler call until a certain amount of time has passed since the last call.
+  *This can be handy for events such as a keypress or an `input` event in input fields.*
+
+* Throttle -
+  skips events with a certain frequency.
+  *This can be handy for `resize` or `scroll` events.*
+
+
+You can specify the value in milliseconds as a number or as a string with suffix: `'<delay>ms'`, supported suffixes:
+* ms - milliseconds,
+* s - seconds,
+* m - minutes.
+
+```js
+class SampleWidget extends LitWidget {
+
+  @onEvent(window, 'resize', { throttle: '500ms' })
+  windowSizeChanged(event) {
+    ...
+  }
+
+}
+```
+
+#### wrapper
+
+Wrapper function for applying additional decorators to the event handler; can be useful, for example, to apply the `debounce` decorator with a delay set at runtime:
+```js
+@onEvent(..., wrapper: (fn, self) => debounce(fn, self.delay * 1000) )
+```
+
+The first parameter passed to the function is the event handler method, the second is a reference to the class instance.
+
+
+### Syntax of the `events` property
+
+Event handlers are specified as an array of objects with parameters:
+- target
+- selector
+- event
+- handler
+- debounce
+- throttle
+- wrapper
+
+The `target`, `event` and `handler` parameters are required.
+
+The `handler` parameter must point to a class method or function - an event handler.
+> **Attention!** The `events` property is not static, therefore *you can* specify a link to a class method as a handler.
+
+Otherwise, the parameters are identical to those of the [`@onEvent`](#onevent-decorator-syntax) decorator.
+
+```js
+class HelloWidget extends LitWidget {
+
+  events = [
+    // Handler for target element
+    {target: 'button', event: 'click', handler: this.buttonClick},
+
+    // Delegated event handler
+    {target: 'list', selector: '.item', event: 'click', handler: this.listItemClick},
+
+    // Frequency-limited event handler
+    {target: 'search-field', event: 'input', handler: this.typing, debounce: '500ms'},
+
+    // Conditional event handler
+    {target: 'search-field', event: keydown(['Up', 'Down']), handler: this.navigate},
+
+    // Global element event handler
+    {target: document, event: 'click', handler: this.outsideClick},
+  ]
+
+}
+```
+
+### Conditional events
+
+Conditional events allow you to restrict an event handler to fire under certain conditions, such as only when certain keys are pressed.
+
+**LitWidget** allows you to specify an object consisting of two fields, `eventName` and `isMatch`, instead of the event name:
+```js
+{
+  eventName: 'keydown',
+  isMatch: (event) => event.key == 'ArrowUp',
+}
+```
+
+* **eventName** - name of the event;
+* **isMatch** - a function that takes an event as a parameter and returns a boolean value; if the function returned `true`, then the event handler will fire.
+
+In the example below, the `keydown` event handler will only fire when the `Escape` button is pressed:
+```js
+class SampleWidget extends LitWidget {
+
+  @onEvent(
+    'search-field',
+    {
+      eventName: 'keydown',
+      isMatch: (event) => event.key == 'Escape',
+    }
+  )
+  cancel(event) {
+    ...
+  }
+
+}
+```
+Condition handlers are conveniently organized as functions, the example above can be written like this:
+```js
+function keydown(key) {
+  return {
+    eventName: 'keydown',
+    isMatch: (event) => event.key == key,
+  };
+}
+
+class SampleWidget extends LitWidget {
+
+  @onEvent('search-field', keydown('Escape'))
+  cancel(event) {
+    ...
+  }
+
+}
+```
 
 
 # Default values
