@@ -84,17 +84,71 @@ Shadow DOM has a number of limitations that are useful when developing web appli
 
 Shadow DOM degrades the indexing of content by search engines by hiding content or markup from indexing mechanisms. Light DOM, on the other hand, allows you to work with components without compromising SEO.
 
-TBD
+Let's consider three approaches to the implementation of the header component.
 
+1. Using the Shadow DOM, passing content through a component attribute:
+    ```js
+    @customElement('shadow-dom')
+    class ShadowDOMComponent extends LitElement {
+      @property text;
 
-## CSS Style Isolation
+      render() {
+        return html`<h1>${this.text}</h1>`;
+      }
+    }
+    ```
+    ```html
+    <shadow-dom text="Header text"></shadow-dom>
+    ```
+
+2. Using the Shadow DOM, passing content through a slot:
+    ```js
+    @customElement('shadow-dom-with-slot')
+    class ShadowDOMwithSlotComponent extends LitElement {
+      render() {
+        return html`<h1><slot></slot></h1>`;
+      }
+    }
+    ```
+    ```html
+    <shadow-dom-with-slot>
+      Header text
+    </shadow-dom-with-slot>
+    ```
+
+3. Using Light DOM - content as in a regular HTML element:
+    ```js
+    @customElement('light-dom')
+    class LightDOMComponent extends LitWidget {
+      lightDOM = true
+    }
+    ```
+    ```html
+    <light-dom>
+      <h1>Header text</h1>
+    </light-dom>
+    ```
+
+All three implementations in the browser look the same, but indexing services of search engines and other services recognize the content in these three implementations differently:
+- some (like Google) correctly recognize the header in all three implementations;
+- others are:
+  - in the first implementation, the content is not recognized at all, because it is in the Shadow DOM;
+  - in the second implementation, the heading text is indexed, but *is not interpreted as a heading*, because the `<h1>` tag is in the Shadow DOM;
+  - and only in the third implementation the header in the `<h1>` tag is indexed in the Light DOM as in normal HTML.
+
+If search engine optimization is important to you, then you need to use Light DOM to make content available for indexing.
+
+### CSS Style Isolation
 
 Shadow DOM isolates not only the styles of the component from the general styles of the page, but also the global styles of the page from the component itself.
 
-TBD
+This can sometimes create additional difficulties when you are using Web Components in an existing project where you already have a design system with global styles defined.
 
+Also, using the same styles within multiple Web Components, such as styles for form fields, leads to an increase in code size and has a negative impact on page loading.
 
-## FUOC (Flash of unstyled content)
+**LitWidget** allows you to [make global page styles available in the Shadow DOM](#sharing-css-styles-in-shadow-dom) of the Web component. This behavior is enabled by default, while the widget will track changes in page styles and when a new tag with styles appears, it will automatically be available in all widgets with global styles sharing enabled, so if you connect some APIs, for example, embed Maps , then their styles will be available in the Shadow DOM of the widgets.
+
+### FUOC (Flash of unstyled content)
 
 Web Components (custom elements) are 100% defined in JavaScript. That includes their HTML and CSS. Those are programmatically added to the DOM through APIs. By the time the browser has interpreted and executed that code, there is a good chance that the rendering pipeline has already put the custom element on the screen. Since it doesn't know about the element the first time around it will render it without the intended styling. After the JavaScript of the custom element definition is executed and the browser, therefore, knows about the CSS rules that apply to that element it can update the view.
 
@@ -105,9 +159,10 @@ FUOC occurs when using Shadow DOM in Web Components, but when using Light DOM th
 
 # Differences from LitElement
 
-**LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements (Light DOM), thus Progressive Enhancement is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
+**LitWidget**, unlike **LitElement**, by default renders (`render`) all nested elements (Light DOM), thus **[Progressive Enhancement](https://en.wikipedia.org/wiki/Progressive_enhancement)** is achieved when the html page contains all the content that can be indexed by search robots, and not generates content with code. To change this behavior, just override the `render` method in the widget.
 
-Also, **LitWidget** makes all page styles (both `<style>` and `<link>` tags) available in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute), this behavior can be disabled by setting the `sharedStyles` static property to `false`.
+Also, **LitWidget** makes all page styles available in **shadowRoot** by default, see [Sharing CSS Styles for details](#sharing-css-styles-in-shadow-dom).
+
 
 # Declarative binding
 
