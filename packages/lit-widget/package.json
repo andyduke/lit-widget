@@ -1,10 +1,19 @@
 {
-  "name": "lit-widget",
+  "name": "@simulacron/lit-widget",
   "version": "1.0.0-beta.1",
   "description": "Declarative binding to child elements for LitElement.",
   "homepage": "https://github.com/andyduke/lit-widget#readme",
   "main": "dist/index.js",
   "module": "dist/module.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "/dist/index.{js,mjs,js.map}",
+    "/README{.md,.ru.md}",
+    "/DOCUMENTATION{.md,.ru.md}",
+    "/LICENSE"
+  ],
   "scripts": {
     "build": "rollup -c rollup.config.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"

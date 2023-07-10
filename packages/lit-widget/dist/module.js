@@ -425,7 +425,7 @@ class DocumentStylesObserver {
     stopObserving() {
         null != SharedStylesController.observer && SharedStylesController.observer.removeListener(this.stylesUpdated);
     }
-    updated({ type , node  }) {
+    updated({ type, node }) {
         switch(type){
             case 'add':
                 this.addStyle(node);
@@ -658,7 +658,7 @@ LitWidget.addInitializer((instance)=>{
  * @param {string} options.selector - CSS selector to find the element to which the property will be bound.
  * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
  * @param {Boolean} options.template - Controls how the `<template>` tag is converted when bound.
- */ function target({ name , selector , cache , template  } = {}, propertyName = null) {
+ */ function target({ name, selector, cache, template } = {}, propertyName = null) {
     let wrapper = function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
@@ -693,7 +693,7 @@ LitWidget.addInitializer((instance)=>{
  * @param {string} options.name - Target name to find the elements to which the property will be bound.
  * @param {string} options.selector - CSS selector to find the elements to which the property will be bound.
  * @param {Boolean} options.cache - Should the bind operation be cached or search for an element each time it is accessed?
- */ function targets({ name , selector , cache  } = {}, propertyName = null) {
+ */ function targets({ name, selector, cache } = {}, propertyName = null) {
     let wrapper = function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
@@ -732,7 +732,7 @@ LitWidget.addInitializer((instance)=>{
  *     `onEvent(..., wrapper: (fn, self) => debounce(fn, self.delay) )`.
  *     The first parameter in the wrapper is the event handler method,
  *     the second is a reference to the class instance.
- */ function onEvent(target, event, { selector , debounce , throttle , wrapper  } = {}) {
+ */ function onEvent(target, event, { selector, debounce, throttle, wrapper } = {}) {
     return function(instance, property) {
         let klass = instance.constructor;
         if (!(instance instanceof LitWidget)) throw Error(`[LitWidget] The class "${klass.name}" is not a descendant of LitWidget.`);
@@ -793,7 +793,7 @@ class KeyboardShortcut {
             writable: !1
         }), !0);
     }
-    constructor(shortcut, { useKey =!0  } = {}){
+    constructor(shortcut, { useKey = !0 } = {}){
         this.keyModifiers = {
             alt: 'altKey',
             control: 'ctrlKey',

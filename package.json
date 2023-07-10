@@ -1,0 +1,22 @@
+{
+  "name": "@simulacron/monorepo",
+  "version": "1.0.0",
+  "description": "LitWidget monorepo",
+  "author": "Andy Chentsov",
+  "private": true,
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-swc": "^0.1.1",
+    "rollup": "^3.23.0"
+  },
+  "workspaces": [
+    "./packages/*"
+  ]
+}

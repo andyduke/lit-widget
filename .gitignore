@@ -1,6 +1,9 @@
 .vscode
+node_modules/
 _temp/
+_backups/
 _dev/
 build-lit-widget.cmd
 LitWidget.code-workspace
 TODO.md
+Interesting Topics.md
