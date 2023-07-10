@@ -1,0 +1,31 @@
+{
+  "name": "@simulacron/keyboard",
+  "version": "1.0.0",
+  "description": "Helper classes and functions for working with the keyboard",
+  "homepage": "https://github.com/andyduke/lit-widget/packages/keyboard#readme",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/lit-widget.git",
+    "directory": "packages/keyboard"
+  },
+  "bugs": {
+    "url": "https://github.com/andyduke/lit-widget/issues"
+  },
+  "keywords": [
+    "keyboard"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

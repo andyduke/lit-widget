@@ -1,0 +1,33 @@
+{
+  "name": "@simulacron/events",
+  "version": "1.0.0",
+  "description": "Helper functions for LitWidget events.",
+  "homepage": "https://github.com/andyduke/lit-widget/packages/events#readme",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/lit-widget.git",
+    "directory": "packages/events"
+  },
+  "bugs": {
+    "url": "https://github.com/andyduke/lit-widget/issues"
+  },
+  "keywords": [
+    "lit",
+    "lit-widget",
+    "events",
+    "keyboard"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@simulacron/keyboard": "^1.0.0"
+  }
+}

@@ -1,4 +1,4 @@
-import { KeyboardShortcuts } from './tools/keyboard';
+import { KeyboardShortcuts } from '@simulacron/keyboard';
 
 export function keydown(shortcut) {
   const shortcuts = new KeyboardShortcuts(shortcut);

@@ -30,8 +30,11 @@
     "lit",
     "lit-element",
     "widget",
+    "components",
     "web-components",
-    "components"
+    "web components",
+    "custom elements",
+    "custom-elements"
   ],
   "author": "Andy Chentsov",
   "license": "BSD-3-Clause",
