@@ -1,7 +1,7 @@
 
 # LitWidget
 
-[ [ENGLISH](./README.md) | RUSSIAN ]
+[ [ENGLISH](./DOCUMENTATION.md) | RUSSIAN ]
 
 **LitWidget** - это паттерн для упрощения разработки Веб-компонентов с помощью библиотеки [Lit](https://lit.dev/).
 
