@@ -646,7 +646,7 @@ class MyCustomElement extends MyElement {
 ```
 
 Пример выше выведет в консоль:
-```json
+```js
 { mode: "expand", expandedClass: "custom-expanded", hint: "Click to expand" }
 ```
 
