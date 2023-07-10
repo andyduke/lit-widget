@@ -522,8 +522,10 @@ _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvent
         return html`<slot></slot>`;
     }
     get defaultValues() {
+        var _Object_getPrototypeOf_defaultValues;
         if (null != this._defaultValues) return this._defaultValues;
-        let parentDefaultValues = this instanceof LitWidget ? {} : Object.getPrototypeOf(this).defaultValues;
+        // const parentDefaultValues = (this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+        let parentDefaultValues = null != (_Object_getPrototypeOf_defaultValues = Object.getPrototypeOf(this).defaultValues) ? _Object_getPrototypeOf_defaultValues : {};
         return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
     }
     /**

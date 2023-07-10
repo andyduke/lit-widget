@@ -89,7 +89,8 @@ export class LitWidget extends LitWidgetBase {
       return this._defaultValues;
     }
 
-    const parentDefaultValues = (this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+    // const parentDefaultValues = (this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+    const parentDefaultValues = Object.getPrototypeOf(this).defaultValues ?? {};
     this._defaultValues = {
       ...parentDefaultValues,
       ...this.constructor.defaultValues,

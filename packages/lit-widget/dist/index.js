@@ -930,7 +930,8 @@
               key: "defaultValues",
               get: function() {
                   if (null != this._defaultValues) return this._defaultValues;
-                  var parentDefaultValues = (null != LitWidget && "undefined" != typeof Symbol && LitWidget[Symbol.hasInstance] ? !!LitWidget[Symbol.hasInstance](this) : this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+                  // const parentDefaultValues = (this instanceof LitWidget) ? {} : Object.getPrototypeOf(this).defaultValues;
+                  var _Object_getPrototypeOf_defaultValues, parentDefaultValues = null != (_Object_getPrototypeOf_defaultValues = Object.getPrototypeOf(this).defaultValues) ? _Object_getPrototypeOf_defaultValues : {};
                   return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
               }
           },
