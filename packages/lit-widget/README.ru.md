@@ -3,7 +3,7 @@
 
 [ [ENGLISH](./README.md) | RUSSIAN ]
 
-**LitWidget** является расширением **LitElement** и позволяет декларативно связать свойства класса компонента с дочерними HTML-элементами, а так же добавить к ним обработчики событий. Такое связывание значительно упрощает работу с **Light DOM**. Этот паттерн похожим образом реализован в [Github/Catalyst](https://catalyst.rocks/) и [Stimulus.js](https://stimulus.hotwired.dev/).
+**LitWidget** является расширением [**LitElement**](https://lit.dev/docs/components/overview/) и позволяет декларативно связать свойства класса компонента с дочерними HTML-элементами, а так же добавить к ним обработчики событий. Такое связывание значительно упрощает работу с **Light DOM**. Этот паттерн похожим образом реализован в [Github/Catalyst](https://catalyst.rocks/) и [Stimulus.js](https://stimulus.hotwired.dev/).
 
 <table>
 <tr>

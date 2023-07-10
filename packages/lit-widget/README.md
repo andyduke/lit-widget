@@ -3,7 +3,7 @@
 
 [ ENGLISH | [RUSSIAN](./README.ru.md) ]
 
-The **LitWidget** widget extends **LitElement** and gives you the ability to declaratively bind component class properties to the component's html child elements, as well as add event handlers to them. This binding greatly simplifies working with the **Light DOM**. A similar pattern is implemented in [Github/Catalyst](https://catalyst.rocks/) and [Stimulus.js](https://stimulus.hotwired.dev/).
+The **LitWidget** widget extends [**LitElement**](https://lit.dev/docs/components/overview/) and gives you the ability to declaratively bind component class properties to the component's html child elements, as well as add event handlers to them. This binding greatly simplifies working with the **Light DOM**. A similar pattern is implemented in [Github/Catalyst](https://catalyst.rocks/) and [Stimulus.js](https://stimulus.hotwired.dev/).
 
 <table>
 <tr>
