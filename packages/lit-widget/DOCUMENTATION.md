@@ -576,11 +576,109 @@ class SampleWidget extends LitWidget {
 
 Web components are often created for the purpose of their reuse in various scenarios. To do this, the components can be configured, for example, through attributes.
 
-TBD
+In `LitElement`, the component's [attributes are associated with class properties](https://lit.dev/docs/components/properties/#attributes) that can be set to default values. These values will be used if the attribute is not specified in the component's HTML markup:
+```js
+@customElement('my-element')
+class MyElement extends LitElement {
+
+  @property({type: String})
+  mode = 'expand';
+
+  @property({type: String})
+  expandedClass = 'expanded';
+
+}
+```
+```html
+<my-element mode="collapse"></my-element>
+```
+
+Instead of just specifying default values, in **LitWidget** you can put the default values in a separate static property `defaultValues` and use these values to initialize properties:
+```js
+class MyElement extends LitWidget {
+
+  static defaultValues = {
+    mode: 'expand',
+    expandedClass: 'expanded',
+  }
+
+  @property({type: String})
+  mode = this.defaultValues.mode;
+
+  @property({type: String})
+  expandedClass = this.defaultValues.expandedClass;
+
+}
+```
+
+This approach allows you to make the components more customizable, it becomes possible to configure default values globally for the entire component:
+```js
+MyElement.defaultValues.expandedClass = 'ui-expanded';
+```
+
+This can be handy if the components are generic and you want to be able to customize their behavior for a particular project, but you don't want to specify the same values every time you use the components.
+
+> **Warning!** Inside the component, you must access `defaultValues` as a class property, not as a static property.
+
+**LitWidget** automatically creates a class property getter that merges all `defaultValues` values from the entire class inheritance chain:
+```js
+class MyElement extends LitWidget {
+
+  static defaultValues = {
+    mode: 'expand',
+    expandedClass: 'expanded',
+  }
+
+}
+
+class MyCustomElement extends MyElement {
+
+  static defaultValues = {
+    hint: 'Click to expand',
+    expandedClass: 'custom-expanded',
+  }
+
+  connectedCallback() {
+    console.log(this.defaultValues);
+  }
+
+}
+```
+
+The example above will output to the console:
+```js
+{ mode: "expand", expandedClass: "custom-expanded", hint: "Click to expand" }
+```
 
 
 # Sharing CSS Styles in Shadow DOM
 
 **LitWidget** allows you to make global page styles (`<style>` and `<link rel="stylesheet">`) available in the Web Component's Shadow DOM.
 
-TBD
+To do this, set the `sharedStyles` property to `true`:
+```js
+class SampleWidget extends LitWidget {
+  sharedStyles = true
+}
+```
+
+**LitWidget** will track changes in the global styles of the page, and when a new style tag appears, it will automatically be available in all widgets with `sharedStyles` enabled, so if you use any external APIs, for example, embed Maps, then the styles will be available in the Shadow DOM of the widgets.
+
+If this behavior is to be disabled, then the `sharedStyles` property must be set to `false`.
+
+If it is necessary to isolate some global styles from the Shadow DOM, then the `<style>`, `<link rel="stylesheet">` tags must be marked with the `data-shared="false"` attribute:
+```html
+<style type="text/css">
+  .component {
+    background-color: teal;
+  }
+</style>
+<style type="text/css" data-shared="false">
+  /* Styles in this tag will not be available in the Shadow DOM of widgets */
+  .component {
+    border: 1px solid red;
+  }
+</style>
+```
+
+By default, the `sharedStyles` property is set to `true` *unless Light DOM is used*. When using Light DOM - the value of the property is ignored, because global styles are always available in the Light DOM.
