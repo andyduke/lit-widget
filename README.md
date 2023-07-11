@@ -12,6 +12,8 @@ Declarative binding to child elements for [LitElement](https://lit.dev/) like [G
   <td valign="top">
 
 ```js
+import { LitWidget, target, onEvent } from '@simulacron/lit-widget';
+
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
 
