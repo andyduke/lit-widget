@@ -1,6 +1,6 @@
 {
   "name": "@simulacron/lit-widget",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Declarative binding to child elements for LitElement.",
   "homepage": "https://github.com/andyduke/lit-widget#readme",
   "main": "dist/index.js",
@@ -10,6 +10,7 @@
   },
   "files": [
     "/dist/index.{js,mjs,js.map}",
+    "/dist/module.{js,mjs,js.map}",
     "/README{.md,.ru.md}",
     "/DOCUMENTATION{.md,.ru.md}",
     "/LICENSE"
