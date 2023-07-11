@@ -3,7 +3,13 @@ import { LitWidget } from './lit-widget';
 /**
  * Decorator to bind a property to a child HTML element
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @target button;
+ *
+ * }
+ * ```
  *
  * By default, it binds to a child element with the `data-target` attribute equal to
  * the component's tag name and the name of the property connected by a dot,
@@ -48,7 +54,13 @@ export function target({ name, selector, cache, template } = {}, propertyName = 
 /**
  * Decorator to bind a property to an array of HTML child elements
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @targets emailEntries;
+ *
+ * }
+ * ```
  *
  * By default, it binds to an array of child elements with a `data-targets`
  * attribute equal to the component's tag name and the name of the property
@@ -88,7 +100,16 @@ export function targets({ name, selector, cache } = {}, propertyName = null) {
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @onEvent('button', 'click')
+ *   greet(event) {
+ *     ...
+ *   }
+ *
+ * }
+ * ```
  *
  * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
  *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.

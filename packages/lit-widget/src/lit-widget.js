@@ -19,49 +19,25 @@ import { LitWidgetBase } from './lit-widget-base';
  * To change this behavior, simply override the `render` method and
  * implement your own rendering.
  *
- * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
- * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
- * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
- *
- * TODO: Describe [data-root] binding
- *
- * TODO: Describe "static targets/targetsAll"
- * TODO: Describe "static events"
- * TODO: Describe defaultValues pattern
- *
- * ## Events:
- *
- * ```js
- * events = [
- *   // Event bound to target
- *   {event: 'click', target: 'button', handler: 'doClick'},
- *
- *   // Event bound to DOM Element
- *   {event: 'click', target: document, handler: 'outsideClick'},
- *
- *   // Event bound to element via selector
- *   {event: 'click', selector: '.expand-button', handler: 'doExpand'},
- * ];
- * ```
- *
  */
 export class LitWidget extends LitWidgetBase {
 
   // #region Static helpers
 
-  /** TODO: ??? */
+  /** @internal */
   static widget(name) {
     return function(proto, options) {
       LitWidget.define(name, proto, options);
     }
   }
 
+  /** @internal */
   static define(name, constructor, options) {
     customElements.define('w-' + name, constructor, options);
   }
 
   /**
-   * TODO: Static getter
+   * Getter helper, for getting static properties
    */
 	get static() {
     return Object.getPrototypeOf(this).constructor;
@@ -134,10 +110,10 @@ export class LitWidget extends LitWidgetBase {
   static sharedStyles = null
 
   /**
-   * TODO: describe override case
+   * @internal
    */
   get sharedStyles() {
-    let sharedStyles = /*Object.getPrototypeOf(this).constructor*/this.static.sharedStyles;
+    let sharedStyles = this.static.sharedStyles;
 
     // Treat null as auto
     if ((sharedStyles == null) && !this.lightDOM) {
@@ -155,15 +131,20 @@ export class LitWidget extends LitWidgetBase {
   // #region Light DOM
 
   /**
-   * TODO:
+   * Enables the use of Light DOM in the component.
+   *
+   * The renderRoot will be the component element or its child element
+   * with the `data-root="component-tag-name"` attribute.
+   *
+   * @type {boolean}
    */
   static lightDOM = false
 
   /**
-   * TODO: describe override case
+   * @internal
    */
   get lightDOM() {
-    return /*Object.getPrototypeOf(this).constructor*/this.static.lightDOM;
+    return this.static.lightDOM;
   }
 
   createRenderRoot() {

@@ -840,31 +840,6 @@
    * To change this behavior, simply override the `render` method and
    * implement your own rendering.
    *
-   * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
-   * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
-   * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
-   *
-   * TODO: Describe [data-root] binding
-   *
-   * TODO: Describe "static targets/targetsAll"
-   * TODO: Describe "static events"
-   * TODO: Describe defaultValues pattern
-   *
-   * ## Events:
-   *
-   * ```js
-   * events = [
-   *   // Event bound to target
-   *   {event: 'click', target: 'button', handler: 'doClick'},
-   *
-   *   // Event bound to DOM Element
-   *   {event: 'click', target: document, handler: 'outsideClick'},
-   *
-   *   // Event bound to element via selector
-   *   {event: 'click', selector: '.expand-button', handler: 'doExpand'},
-   * ];
-   * ```
-   *
    */ var LitWidget = function(LitWidgetBase) {
       function LitWidget() {
           var _this;
@@ -911,17 +886,17 @@
       }, _proto.disconnectedCallback = function() {
           LitWidgetBase.prototype.disconnectedCallback.call(this), void 0 !== this._findCache && (this._findCache = {});
       }, // #region Static helpers
-      /** TODO: ??? */ LitWidget.widget = function(name) {
+      /** @internal */ LitWidget.widget = function(name) {
           return function(proto, options) {
               LitWidget.define(name, proto, options);
           };
-      }, LitWidget.define = function(name, constructor, options) {
+      }, /** @internal */ LitWidget.define = function(name, constructor, options) {
           customElements.define("w-" + name, constructor, options);
       }, protoProps = [
           {
               key: "static",
               get: /**
-     * TODO: Static getter
+     * Getter helper, for getting static properties
      */ function() {
                   return Object.getPrototypeOf(this).constructor;
               }
@@ -938,9 +913,9 @@
           {
               key: "sharedStyles",
               get: /**
-     * TODO: describe override case
+     * @internal
      */ function() {
-                  var sharedStyles = /*Object.getPrototypeOf(this).constructor*/ this.static.sharedStyles;
+                  var sharedStyles = this.static.sharedStyles;
                   return null != sharedStyles || this.lightDOM || // If sharedStyles is "auto" and not lightDOM - then it will default to true
                   (sharedStyles = !0), sharedStyles;
               }
@@ -948,9 +923,9 @@
           {
               key: "lightDOM",
               get: /**
-     * TODO: describe override case
+     * @internal
      */ function() {
-                  return /*Object.getPrototypeOf(this).constructor*/ this.static.lightDOM;
+                  return this.static.lightDOM;
               }
           }
       ], _defineProperties(LitWidget.prototype, protoProps), LitWidget);
@@ -978,7 +953,12 @@
      */ LitWidget.sharedStyles = null, // #endregion Shared styles
   // #region Light DOM
   /**
-     * TODO:
+     * Enables the use of Light DOM in the component.
+     *
+     * The renderRoot will be the component element or its child element
+     * with the `data-root="component-tag-name"` attribute.
+     *
+     * @type {boolean}
      */ LitWidget.lightDOM = !1, // #region Targets getters
   LitWidget.addInitializer(function(instance) {
       var klass = Object.getPrototypeOf(instance).constructor;
@@ -1015,7 +995,13 @@
   /**
    * Decorator to bind a property to a child HTML element
    *
-   * TODO: examples
+   * ```js
+   * class SampleWidget extends LitWidget {
+   *
+   *   @target button;
+   *
+   * }
+   * ```
    *
    * By default, it binds to a child element with the `data-target` attribute equal to
    * the component's tag name and the name of the property connected by a dot,
@@ -1055,7 +1041,13 @@
   /**
    * Decorator to bind a property to an array of HTML child elements
    *
-   * TODO: examples
+   * ```js
+   * class SampleWidget extends LitWidget {
+   *
+   *   @targets emailEntries;
+   *
+   * }
+   * ```
    *
    * By default, it binds to an array of child elements with a `data-targets`
    * attribute equal to the component's tag name and the name of the property
@@ -1089,7 +1081,16 @@
   /**
    * Decorator to attach a method as an HTML child element event handler
    *
-   * TODO: examples
+   * ```js
+   * class SampleWidget extends LitWidget {
+   *
+   *   @onEvent('button', 'click')
+   *   greet(event) {
+   *     ...
+   *   }
+   *
+   * }
+   * ```
    *
    * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
    *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.

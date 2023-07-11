@@ -474,43 +474,18 @@ _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvent
  * To change this behavior, simply override the `render` method and
  * implement your own rendering.
  *
- * LitWidget makes all page styles (both `<style>` and `<link>` tags) available
- * in **shadowRoot** by default (except styles with the `[data-shared="false"]` attribute),
- * this behavior can be disabled by setting the `sharedStyles` static property to `false`.
- *
- * TODO: Describe [data-root] binding
- *
- * TODO: Describe "static targets/targetsAll"
- * TODO: Describe "static events"
- * TODO: Describe defaultValues pattern
- *
- * ## Events:
- *
- * ```js
- * events = [
- *   // Event bound to target
- *   {event: 'click', target: 'button', handler: 'doClick'},
- *
- *   // Event bound to DOM Element
- *   {event: 'click', target: document, handler: 'outsideClick'},
- *
- *   // Event bound to element via selector
- *   {event: 'click', selector: '.expand-button', handler: 'doExpand'},
- * ];
- * ```
- *
  */ class LitWidget extends LitWidgetBase {
     // #region Static helpers
-    /** TODO: ??? */ static widget(name) {
+    /** @internal */ static widget(name) {
         return function(proto, options) {
             LitWidget.define(name, proto, options);
         };
     }
-    static define(name, constructor, options) {
+    /** @internal */ static define(name, constructor, options) {
         customElements.define('w-' + name, constructor, options);
     }
     /**
-   * TODO: Static getter
+   * Getter helper, for getting static properties
    */ get static() {
         return Object.getPrototypeOf(this).constructor;
     }
@@ -529,16 +504,16 @@ _events = /*#__PURE__*/ _class_private_field_loose_key("_events"), _prepareEvent
         return this._defaultValues = _extends({}, parentDefaultValues, this.constructor.defaultValues), this._defaultValues;
     }
     /**
-   * TODO: describe override case
+   * @internal
    */ get sharedStyles() {
-        let sharedStyles = /*Object.getPrototypeOf(this).constructor*/ this.static.sharedStyles;
+        let sharedStyles = this.static.sharedStyles;
         return null != sharedStyles || this.lightDOM || // If sharedStyles is "auto" and not lightDOM - then it will default to true
         (sharedStyles = !0), sharedStyles;
     }
     /**
-   * TODO: describe override case
+   * @internal
    */ get lightDOM() {
-        return /*Object.getPrototypeOf(this).constructor*/ this.static.lightDOM;
+        return this.static.lightDOM;
     }
     createRenderRoot() {
         let root;
@@ -593,7 +568,12 @@ LitWidget.defaultValues = {}, // #endregion Events
    */ LitWidget.sharedStyles = null, // #endregion Shared styles
 // #region Light DOM
 /**
-   * TODO:
+   * Enables the use of Light DOM in the component.
+   *
+   * The renderRoot will be the component element or its child element
+   * with the `data-root="component-tag-name"` attribute.
+   *
+   * @type {boolean}
    */ LitWidget.lightDOM = !1, // #region Targets getters
 LitWidget.addInitializer((instance)=>{
     var _options_property, _options_property1;
@@ -638,7 +618,13 @@ LitWidget.addInitializer((instance)=>{
 /**
  * Decorator to bind a property to a child HTML element
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @target button;
+ *
+ * }
+ * ```
  *
  * By default, it binds to a child element with the `data-target` attribute equal to
  * the component's tag name and the name of the property connected by a dot,
@@ -678,7 +664,13 @@ LitWidget.addInitializer((instance)=>{
 /**
  * Decorator to bind a property to an array of HTML child elements
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @targets emailEntries;
+ *
+ * }
+ * ```
  *
  * By default, it binds to an array of child elements with a `data-targets`
  * attribute equal to the component's tag name and the name of the property
@@ -712,7 +704,16 @@ LitWidget.addInitializer((instance)=>{
 /**
  * Decorator to attach a method as an HTML child element event handler
  *
- * TODO: examples
+ * ```js
+ * class SampleWidget extends LitWidget {
+ *
+ *   @onEvent('button', 'click')
+ *   greet(event) {
+ *     ...
+ *   }
+ *
+ * }
+ * ```
  *
  * @param {(string|Window|Document|HTMLElement)} target - The name of the target to find the HTML element.
  *     You can pass an existing HTML element or window to attach an event handler to document.body or window for example.
