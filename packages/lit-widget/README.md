@@ -14,6 +14,8 @@ The **LitWidget** widget extends [**LitElement**](https://lit.dev/docs/component
   <td valign="top">
 
 ```js
+import { LitWidget, target, onEvent } from '@simulacron/lit-widget';
+
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
 

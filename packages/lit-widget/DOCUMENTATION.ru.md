@@ -18,6 +18,8 @@
 
 Класс виджета:
 ```js
+import { LitWidget, target, onEvent } from '@simulacron/lit-widget';
+
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
 
