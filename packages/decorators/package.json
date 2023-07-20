@@ -1,0 +1,32 @@
+{
+  "name": "@simulacron/decorators",
+  "version": "1.0.0",
+  "description": "Some useful decorators.",
+  "homepage": "https://github.com/andyduke/lit-widget/packages/decorators#readme",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/lit-widget.git",
+    "directory": "packages/decorators"
+  },
+  "bugs": {
+    "url": "https://github.com/andyduke/lit-widget/issues"
+  },
+  "keywords": [
+    "decorator",
+    "annotation",
+    "bind",
+    "autobind",
+    "debounce",
+    "throttle"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause"
+}
