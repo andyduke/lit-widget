@@ -1,6 +1,7 @@
 {
   "name": "@simulacron/events",
   "version": "1.0.0",
+  "type": "module",
   "description": "Helper functions for LitWidget events.",
   "homepage": "https://github.com/andyduke/lit-widget/packages/events#readme",
   "main": "src/index.js",
