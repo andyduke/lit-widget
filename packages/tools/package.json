@@ -1,0 +1,28 @@
+{
+  "name": "@simulacron/tools",
+  "description": "Helper functions.",
+  "homepage": "https://github.com/andyduke/lit-widget/packages/tools#readme",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/lit-widget.git",
+    "directory": "packages/tools"
+  },
+  "bugs": {
+    "url": "https://github.com/andyduke/lit-widget/issues"
+  },
+  "keywords": [
+    "tools",
+    "debounce",
+    "throttle"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause"
+}
