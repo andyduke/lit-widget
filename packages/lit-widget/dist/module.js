@@ -1,5 +1,5 @@
 /*
-  LitWidget 1.0.0-beta.1
+  LitWidget 1.0.0-beta.2
   Copyright (C) 2023 Andy Chentsov <chentsov@gmail.com>
   @license BSD-3-Clause
 */

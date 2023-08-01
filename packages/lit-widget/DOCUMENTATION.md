@@ -19,6 +19,7 @@ In the following example, class properties `input` and `output` will be automati
 Widget class:
 ```js
 import { LitWidget, target, onEvent } from '@simulacron/lit-widget';
+import { customElement } from 'lit/decorators.js';
 
 @customElement('w-hello')
 class HelloWidget extends LitWidget {

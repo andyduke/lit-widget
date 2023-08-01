@@ -13,6 +13,7 @@ Declarative binding to child elements for [LitElement](https://lit.dev/) like [G
 
 ```js
 import { LitWidget, target, onEvent } from '@simulacron/lit-widget';
+import { customElement } from 'lit/decorators.js';
 
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
