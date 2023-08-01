@@ -1,6 +1,7 @@
 {
   "name": "@simulacron/keyboard",
   "version": "1.0.0",
+  "type": "module",
   "description": "Helper classes and functions for working with the keyboard",
   "homepage": "https://github.com/andyduke/lit-widget/packages/keyboard#readme",
   "main": "src/index.js",
@@ -23,9 +24,5 @@
     "keyboard"
   ],
   "author": "Andy Chentsov",
-  "license": "BSD-3-Clause",
-  "dependencies": {
-  },
-  "devDependencies": {
-  }
+  "license": "BSD-3-Clause"
 }
