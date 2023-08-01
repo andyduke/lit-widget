@@ -1,6 +1,7 @@
 {
   "name": "@simulacron/decorators",
-  "version": "1.0.0",
+  "version": "1.0.2",
+  "type": "module",
   "description": "Some useful decorators.",
   "homepage": "https://github.com/andyduke/lit-widget/packages/decorators#readme",
   "main": "src/index.js",
@@ -28,5 +29,8 @@
     "throttle"
   ],
   "author": "Andy Chentsov",
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "@simulacron/tools": "^1.0.1"
+  }
 }
