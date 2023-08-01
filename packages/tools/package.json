@@ -1,5 +1,6 @@
 {
   "name": "@simulacron/tools",
+  "version": "1.0.1",
   "description": "Helper functions.",
   "homepage": "https://github.com/andyduke/lit-widget/packages/tools#readme",
   "main": "src/index.js",

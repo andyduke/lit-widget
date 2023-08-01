@@ -5,32 +5,36 @@
 
 ### debounce
 
-Debounce the execution of the method.
+Debounce the execution of the function.
 
 You can specify the value in milliseconds as a number or in string format with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
 
 This can be handy for events such as key presses or "input" in input fields.
 
 ```js
-@debounce('300ms')
-inputChanged(event) {
+debounce(
+  inputChanged(event) {
   // ...
-}
+  },
+  '300ms'
+);
 ```
 
 ### throttle
 
-Throttle the execution of the method.
+Throttle the execution of the function.
 
 You can specify the value in milliseconds as a number or in string format with the suffix `'<delay>ms'`, supported suffixes: ms - milliseconds, s - seconds, m - minutes.
 
 This can be handy for "resize" or "scroll" events.
 
 ```js
-@throttle('500ms')
-resizeChanged(event) {
-  // ...
-}
+throttle(
+  resizeChanged(event) {
+    // ...
+  },
+  '500ms'
+);
 ```
 
 ### duration
