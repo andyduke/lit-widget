@@ -171,6 +171,28 @@ Also, **LitWidget** makes all page styles available in **shadowRoot** by default
 
 **LitWidget** allows Light DOM (and Shadow DOM too) to specify elements as targets for binding to class properties and handlers.
 
+For example, if you specify an `input` property binding in a widget using the `@target` decorator:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  @target input
+
+}
+```
+...then it will be equivalent to something like this getter:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  get input() {
+    return this.querySelector(`${this.tagName}.input`);
+  }
+
+}
+```
+Thus, further in the class, an element from the Light DOM with the attribute `data-target="w-hello.input"` will be available like this: `this.input`.
+
 ### Targets
 
 Targets are specified using the `data-target` attribute, as the value of the attribute, you must specify the name of the Web Component tag and, separated by a dot, the name of the target declared in the widget:
@@ -389,7 +411,7 @@ onEvent(target, event, { [selector], [debounce], [throttle], [wrapper] })
 
 #### target
 
-The name of the target to search for the HTML element in the DOM (see [Targets](#targets)).
+The name of the target to add an event handler to an HTML element in the Light DOM with this target name (see [Targets](#targets)).
 
 You can also pass an existing HTML element, `window` or `document` object to add an event handler to, for example, `document.body` or `window`:
 ```js
