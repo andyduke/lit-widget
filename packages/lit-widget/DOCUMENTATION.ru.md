@@ -394,11 +394,15 @@ class HelloWidget extends LitWidget {
     super.connectedCallback();
 
     this._greetBind = this.greet.bind(this);
-    this.querySelector(`data-target="${this.tagName}.button"`).addEventListener('click', this._greetBind);
+    this.
+      querySelector(`data-target="${this.tagName}.button"`).
+      addEventListener('click', this._greetBind);
   }
 
   disconnectedCallback() {
-    this.querySelector(`data-target="${this.tagName}.button"`).removeEventListener('click', this._greetBind);
+    this.
+      querySelector(`data-target="${this.tagName}.button"`).
+      removeEventListener('click', this._greetBind);
 
     super.disconnectedCallback();
   }
