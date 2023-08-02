@@ -186,7 +186,7 @@ class HelloWidget extends LitWidget {
 class HelloWidget extends LitWidget {
 
   get input() {
-    return this.querySelector(`${this.tagName}.input`);
+    return this.querySelector(`data-target="${this.tagName}.input"`);
   }
 
 }
@@ -372,6 +372,43 @@ class HelloWidget extends LitWidget {
 **LitWidget** автоматически добавляет специально отмеченные *публичные* методы класса в качестве обработчиков событий при подключении к DOM-элементу (в `connectedCallback`) и отключает их при отключении от DOM-элемента (в `disconnectedCallback`).
 
 Обработчики событий добавляются к целевым элементам, указанным в DOM с помощью атрибутов `data-target` и `data-targets` (см. [Указание цели](#указание-цели)). Один обработчик может быть добавлен к нескольким элементам одновременно, а так же обрабатывать несколько событий одновременно.
+
+Если указать метод класса как обработчик события цели:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  @onEvent('button', 'click')
+  greet() {
+    this.output.textContent = `Hello, ${this.input.value}!`;
+  }
+
+}
+```
+...то если сильно упростить - это эквивалентно примерно такому коду:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this._greetBind = this.greet.bind(this);
+    this.querySelector(`data-target="${this.tagName}.button"`).addEventListener('click', this._greetBind);
+  }
+
+  disconnectedCallback() {
+    this.querySelector(`data-target="${this.tagName}.button"`).removeEventListener('click', this._greetBind);
+
+    super.disconnectedCallback();
+  }
+
+  greet() {
+    this.output.textContent = `Hello, ${this.input.value}!`;
+  }
+
+}
+```
 
 > **LitWidget** отслеживает появление и исчезновение в Light DOM и Shadow DOM элементов с атрибутами целей (`data-target` и `data-targets`) и автоматически добавляет и убирает обработчики.
 

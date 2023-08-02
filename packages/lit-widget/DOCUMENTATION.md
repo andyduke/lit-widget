@@ -186,7 +186,7 @@ class HelloWidget extends LitWidget {
 class HelloWidget extends LitWidget {
 
   get input() {
-    return this.querySelector(`${this.tagName}.input`);
+    return this.querySelector(`data-target="${this.tagName}.input"`);
   }
 
 }
@@ -370,6 +370,43 @@ See the [`@targets`](#targets) decorator for a description of the parameters.
 **LitWidget** automatically adds specially marked *public* class methods as event handlers when connected to a DOM element (in `connectedCallback`) and removes them when disconnected from a DOM element (in `disconnectedCallback`).
 
 Event handlers are added to target elements specified in the DOM using the `data-target` and `data-targets` attributes (see [Targets](#targets)). One handler can be added to several elements at the same time, as well as handle several events at the same time.
+
+If you specify a class method as the target's event handler:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  @onEvent('button', 'click')
+  greet() {
+    this.output.textContent = `Hello, ${this.input.value}!`;
+  }
+
+}
+```
+...if greatly simplified - this is equivalent to something like this:
+```js
+@customElement('w-hello')
+class HelloWidget extends LitWidget {
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this._greetBind = this.greet.bind(this);
+    this.querySelector(`data-target="${this.tagName}.button"`).addEventListener('click', this._greetBind);
+  }
+
+  disconnectedCallback() {
+    this.querySelector(`data-target="${this.tagName}.button"`).removeEventListener('click', this._greetBind);
+
+    super.disconnectedCallback();
+  }
+
+  greet() {
+    this.output.textContent = `Hello, ${this.input.value}!`;
+  }
+
+}
+```
 
 > **LitWidget** tracks the addition and removal of elements with target attributes (`data-target` and `data-targets`) in the Light DOM and Shadow DOM and automatically adds and removes handlers.
 
