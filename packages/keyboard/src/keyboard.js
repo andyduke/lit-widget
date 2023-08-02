@@ -10,7 +10,7 @@
  * const shortcut = new KeyboardShortcut('mod+s');
  *
  * element.addEventListener('keydown', function(event) {
- *   if (shortcut.isMatch(event)) {
+ *   if (shortcut.isMatchEvent(event)) {
  *     // Do action...
  *   }
  * });
@@ -252,7 +252,7 @@ export class KeyboardShortcut {
  * ]);
  *
  * element.addEventListener('keydown', function(event) {
- *   if (shortcuts.isMatch(event)) {
+ *   if (shortcuts.isMatchEvent(event)) {
  *     // Do action...
  *   }
  * });

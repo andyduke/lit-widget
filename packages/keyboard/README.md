@@ -14,7 +14,7 @@ and then use the `isMatchEvent()` method to test for the keyboard event:
 const shortcut = new KeyboardShortcut('mod+s');
 
 element.addEventListener('keydown', function(event) {
-  if (shortcut.isMatch(event)) {
+  if (shortcut.isMatchEvent(event)) {
     // Do action...
   }
 });
@@ -66,7 +66,7 @@ const shortcuts = new KeyboardShortcuts([
 ]);
 
 element.addEventListener('keydown', function(event) {
-  if (shortcuts.isMatch(event)) {
+  if (shortcuts.isMatchEvent(event)) {
     // Do action...
   }
 });

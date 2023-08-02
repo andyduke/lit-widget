@@ -1,6 +1,6 @@
 {
   "name": "@simulacron/keyboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "Helper classes and functions for working with the keyboard",
   "homepage": "https://github.com/andyduke/lit-widget/packages/keyboard#readme",
