@@ -180,7 +180,7 @@ class HelloWidget extends LitWidget {
 
 }
 ```
-...then it will be equivalent to something like this getter:
+...it will be equivalent to something like this getter:
 ```js
 @customElement('w-hello')
 class HelloWidget extends LitWidget {
