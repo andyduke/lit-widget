@@ -67,7 +67,7 @@ In **LitWidget**, the use of Light DOM is enabled by setting the `lightDOM` prop
 ```js
 @customElement('w-sample')
 class SampleWidget extends LitWidget {
-  lightDOM = true
+  static lightDOM = true
 }
 ```
 Such a widget will use itself as `renderRoot` or a child element marked with the `data-root` attribute, whose value should be the name of the component tag:
@@ -123,7 +123,7 @@ Let's consider three approaches to the implementation of the header component.
     ```js
     @customElement('light-dom')
     class LightDOMComponent extends LitWidget {
-      lightDOM = true
+      static lightDOM = true
     }
     ```
     ```html

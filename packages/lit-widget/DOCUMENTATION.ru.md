@@ -67,7 +67,7 @@ Light DOM — это разметка, которую пишет пользов�
 ```js
 @customElement('w-sample')
 class SampleWidget extends LitWidget {
-  lightDOM = true
+  static lightDOM = true
 }
 ```
 Такой виджет будет использовать себя в качестве `renderRoot` или дочерний элемент, помеченный атрибутом `data-root`, в качестве значения которого должно быть название тэга компонента:
@@ -123,7 +123,7 @@ Shadow DOM ухудшает индексацию контента поисков
     ```js
     @customElement('light-dom')
     class LightDOMComponent extends LitWidget {
-      lightDOM = true
+      static lightDOM = true
     }
     ```
     ```html
