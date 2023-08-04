@@ -724,7 +724,7 @@ The example above will output to the console:
 To do this, set the `sharedStyles` property to `true`:
 ```js
 class SampleWidget extends LitWidget {
-  sharedStyles = true
+  static sharedStyles = true
 }
 ```
 

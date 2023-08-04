@@ -728,7 +728,7 @@ class MyCustomElement extends MyElement {
 Для этого необходимо установить свойство `sharedStyles` в `true`:
 ```js
 class SampleWidget extends LitWidget {
-  sharedStyles = true
+  static sharedStyles = true
 }
 ```
 
