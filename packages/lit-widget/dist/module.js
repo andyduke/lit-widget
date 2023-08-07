@@ -249,7 +249,7 @@ class EventHandler {
         // Event name
         let eventName = event.event, handler = (...args)=>event.handler.apply(this.host, args);
         // Handle conditional event (eventName = {eventHandler: string, isMatch: function})
-        if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), 'string' == typeof event.selector && (handler = (()=>{
+        if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler, this.host)), 'string' == typeof event.selector && (handler = (()=>{
             let prevHandler = handler;
             return (e)=>{
                 e.target.matches(event.selector) && prevHandler(e);

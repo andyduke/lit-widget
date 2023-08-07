@@ -108,7 +108,7 @@ export class EventsController {
       handler = throttle(handler, event.throttle);
     }
     if (event['wrapper'] != null && typeof event['wrapper'] !== 'undefined') {
-      handler = event.wrapper.call(this.host, handler/*, this.host*/);
+      handler = event.wrapper.call(this.host, handler, this.host);
     }
 
     // Handling delegated event

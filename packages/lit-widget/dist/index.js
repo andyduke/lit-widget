@@ -510,7 +510,7 @@
               return event.handler.apply(_this.host, args);
           };
           // Handle conditional event (eventName = {eventHandler: string, isMatch: function})
-          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler /*, this.host*/ )), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
+          if (event.debounce ? handler = debounce(handler, event.debounce) : event.throttle && (handler = throttle(handler, event.throttle)), null != event.wrapper && void 0 !== event.wrapper && (handler = event.wrapper.call(this.host, handler, this.host)), "string" == typeof event.selector && (prevHandler = handler, handler = function(e) {
               e.target.matches(event.selector) && prevHandler(e);
           }), "object" == typeof eventName) {
               var prevHandler, isMatch, prevHandler1, preset = eventName;
