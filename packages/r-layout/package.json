@@ -13,10 +13,20 @@
     "exports": "eyeglass-exports.js"
   },
   "devDependencies": {
-    "stylelint": "10.1.0"
+    "stylelint": "^15.10.2",
+    "stylelint-config-standard-scss": "^10.0.0"
   },
+  "files": [
+    "/scss/**/*.scss",
+    "/*.scss",
+    "/index.js",
+    "/module.mjs",
+    "/eyeglass-exports.js",
+    "/README{.md,.ru.md}",
+    "/LICENSE"
+  ],
   "scripts": {
-    "stylelint": "npx stylelint 'scss/**/*.scss'"
+    "stylelint": "stylelint scss/**/*.scss"
   },
   "repository": {
     "type": "git",
