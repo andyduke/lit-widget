@@ -1,0 +1,40 @@
+{
+  "name": "@simulacron/r-layout",
+  "version": "1.0.0",
+  "description": "Adaptive layouts in SCSS.",
+  "homepage": "https://github.com/andyduke/lit-widget/packages/r-layout#readme",
+  "main": "index.js",
+  "module": "module.mjs",
+  "publishConfig": {
+    "access": "public"
+  },
+  "eyeglass": {
+    "needs": "*",
+    "exports": "eyeglass-exports.js"
+  },
+  "devDependencies": {
+    "stylelint": "10.1.0"
+  },
+  "scripts": {
+    "stylelint": "npx stylelint 'scss/**/*.scss'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andyduke/lit-widget.git",
+    "directory": "packages/r-layout"
+  },
+  "bugs": {
+    "url": "https://github.com/andyduke/lit-widget/issues"
+  },
+  "keywords": [
+    "layout",
+    "responsive",
+    "eyeglass-module",
+    "css",
+    "mixins",
+    "sass",
+    "scss"
+  ],
+  "author": "Andy Chentsov",
+  "license": "BSD-3-Clause"
+}

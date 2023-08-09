@@ -1,0 +1,235 @@
+
+/// Adaptive layouts toolkit 1.4 2017-2023
+///
+/// @author Andy Chentsov <chentsov@gmail.com>
+
+/// Global storage of all defined layouts
+/// @access private
+$r-layouts: () !default;
+
+/// Current layout values
+/// @access private
+$r-layout-values: ();
+
+/// MediaQuery parameters of the current layout
+/// @access private
+$r-layout-size: null !default;
+
+/// Defines the layout and its parameters
+///
+/// @param {String} $name - Layout name
+/// @param {Map}    $sizes - MediaQuery constraint presets
+/// @param {Map}    $values - Layout values for each MediaQuery preset
+///
+/// @example sass
+/// @include r-define-layout(
+///   $name: 'intro',
+///   $sizes: (
+///     small:    (max: 767px),
+///     normal:   (min: 768px),
+///   ),
+///   $values: (
+///     small: (
+///       heading: (
+///         font-size: 18px,
+///         line-height: 1.3,
+///         margin: (
+///           bottom: 16px,
+///         ),
+///       ),
+///       text: (
+///         font-size: 16px,
+///       ),
+///     ),
+///     normal: (
+///       heading: (
+///         font-size: 24px,
+///         line-height: 1.2,
+///         margin: (
+///           bottom: 32px,
+///         ),
+///       ),
+///       text: (
+///         font-size: 18px,
+///       ),
+///     ),
+///   ),
+/// );
+///
+/// @access public
+@mixin r-define-layout($name, $sizes, $values: ()) {
+  $r-layouts: map-merge($r-layouts, (
+    $name: (
+      name: $name,
+      sizes: $sizes,
+      values: $values
+    )
+  )) !global;
+}
+
+/// Generates a MediaQuery with the given constraints
+///
+/// @param {String} $layout - Layout name
+/// @param {Map}    $values - Layout values
+/// @content CSS rules
+///
+/// @access private
+@mixin rl-query($layout, $values) {
+  $query: "";
+  $old-values: $r-layout-values;
+
+  // Build media query
+  @if map-has-key($layout, min) { $query: append($query, "(min-width: #{map-get($layout, min)})") }
+  @if map-has-key($layout, min) and map-has-key($layout, max) { $query: append($query, "and") }
+  @if map-has-key($layout, max) { $query: append($query, "(max-width: #{map-get($layout, max)})") }
+  @if map-has-key($layout, orientation) { $query: append($query, " and (orientation: #{map-get($layout, orientation)})") }
+
+  // Set preset values
+  $r-layout-values: $values !global;
+
+  // media
+  @media screen and #{$query} { @content; }
+
+  // Restove preset values
+  $r-layout-values: $old-values !global;
+}
+
+/// Generates a block of CSS rules for each preset from the specified layout
+///
+/// @param {String} $layout - Layout name
+/// @param {List}   $sizes [all presets] - The list of MediaQuery presets allows you to limit the generation to only these presets
+/// @content CSS rules for each preset from the specified layout
+///
+/// @example scss
+/// @include r-layout(intro) {
+///
+///   .intro {
+///
+///     .intro-heading {
+///       font-size: rl-value(heading, font-size);
+///       line-height: rl-value(heading, line-height);
+///       margin-bottom: rl-value(heading, margin, bottom);
+///     }
+///
+///     .intro-text {
+///       font-size: rl-value(text, font-size);
+///     }
+///
+///   }
+///
+/// }
+///
+/// @access public
+@mixin r-layout($layout, $sizes...) {
+  $r-layout: map-get($r-layouts, $layout);
+  //@debug $r-layout;
+  @if $r-layout == null { @error 'Layout "#{$layout}" not found.'; }
+  $r-sizes: map-get($r-layout, sizes);
+  @if $r-sizes == null { $r-sizes: (); }
+
+  $size-names: $sizes;
+  @if length($size-names) == 0 {
+    $size-names: map-keys($r-sizes);
+  }
+
+  @each $size-name in $size-names {
+    $r-layout-size: $size-name !global;
+
+    @if map-has-key($r-sizes, $size-name) {
+      $all-values: map-get($r-layout, values);
+      $values: map-get($all-values, $size-name);
+      $size: map-get($r-sizes, $size-name);
+
+      //@if ($size != null) and ($values != null) {
+      @if ($size != null) {
+        @include rl-query($size, $values) {
+          @content;
+        }
+      }
+    }
+
+    $r-layout-size: null !global;
+  }
+}
+
+/// @access private
+@function rl-value-internal($set, $keys) {
+  @each $key in $keys {
+    $set: map-get($set, $key);
+    @if $set == null {
+      @return null;
+    }
+  }
+  @return $set;
+}
+
+/// Returns the parameter value from the current preset of the current layout
+///
+/// **Attention!** Can only be used inside `r-layout`
+///
+/// @param {String} $parameter... - Parameter name in current layout preset
+/// @return Parameter value or `null`
+///
+/// @require {mixin} r-layout
+///
+/// @access public
+@function rl-value($keys...) {
+  $key: nth($keys, 1);
+  $set: if(map-has-key($r-layout-values, $key), $r-layout-values, null);
+  @return if($set != null, rl-value-internal($set, $keys), null);
+}
+
+/// Returns the parameter value from the current preset of the current layout or default value
+///
+/// **Attention!** Can only be used inside `r-layout`
+///
+/// @param {*} $def-value - Default value
+/// @param {String} $parameter... - Parameter name in current layout preset
+/// @return Parameter value or `$def-value`
+///
+/// @require {mixin} r-layout
+/// @see {mixin} rl-value
+///
+/// @access public
+@function rl-def-value($def-value, $keys...) {
+  $key: nth($keys, 1);
+  $set: if(map-has-key($r-layout-values, $key), $r-layout-values, null);
+  $result: if($set != null, rl-value-internal($set, $keys), null);
+  @return if($result == null, $def-value, $result);
+}
+
+/// Returns the parameter value of the specified MediaQuery layout and preset
+///
+/// @param {String} $layout-name - Layout name
+/// @param {String} $size-name - MediaQuery preset name
+/// @param {String} $parameter... - Parameter name in specified layout preset
+/// @return Parameter value or `null`
+///
+/// @acceess public
+@function rl-layout-value($layout-name, $size-name, $keys...) {
+  $layout: map-get($r-layouts, $layout-name);
+  @if $layout == null { @error 'Layout "#{$layout-name}" not found.'; }
+  $all-values: map-get($layout, values);
+  $values: map-get($all-values, $size-name);
+  @if $values != null {
+    $key: nth($keys, 1);
+    $set: if(map-has-key($values, $key), $values, null);
+    @return if($set != null, rl-value-internal($set, $keys), null);
+  } @else {
+    @return null;
+  }
+}
+
+/// Returns the parameter value of the specified MediaQuery layout and preset or default value
+///
+/// @param {*} $def-value - Default value
+/// @param {String} $layout-name - Layout name
+/// @param {String} $size-name - MediaQuery preset name
+/// @param {String} $parameter... - Parameter name in specified layout preset
+/// @return Parameter value or `$def-value`
+///
+/// @acceess public
+@function rl-layout-def-value($def-value, $layout-name, $size-name, $keys...) {
+  $result: rl-layout-value($layout-name, $size-name, $keys...);
+  @return if($result == null, $def-value, $result);
+}
