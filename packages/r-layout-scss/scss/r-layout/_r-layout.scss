@@ -1,7 +1,8 @@
-
-/// Adaptive layouts toolkit 1.4 2017-2023
+////
+/// R-Layout - Adaptive layouts toolkit 2.0 (2017-2023)
 ///
 /// @author Andy Chentsov <chentsov@gmail.com>
+////
 
 /// Global storage of all defined layouts
 /// @access private
@@ -22,7 +23,7 @@ $r-layout-size: null !default;
 /// @param {Map}    $values - Layout values for each MediaQuery preset
 ///
 /// @example sass
-/// @include r-define-layout(
+/// @include define-layout(
 ///   $name: 'intro',
 ///   $sizes: (
 ///     small:    (max: 767px),
@@ -57,7 +58,7 @@ $r-layout-size: null !default;
 /// );
 ///
 /// @access public
-@mixin r-define-layout($name, $sizes, $values: ()) {
+@mixin define-layout($name, $sizes, $values: ()) {
   $r-layouts: map-merge($r-layouts, (
     $name: (
       name: $name,
@@ -77,6 +78,12 @@ $r-layout-size: null !default;
 @mixin rl-query($layout, $values) {
   $query: "";
   $old-values: $r-layout-values;
+
+  @if not map-has-key($layout, min) or
+      not map-has-key($layout, max) or
+      not map-has-key($layout, orientation) {
+    @error "Layout #{$layout}: invalid breakpoint condition, at least 'min', 'max' or 'orientation' must be specified.";
+  }
 
   // Build media query
   @if map-has-key($layout, min) { $query: append($query, "(min-width: #{map-get($layout, min)})") }
@@ -101,18 +108,18 @@ $r-layout-size: null !default;
 /// @content CSS rules for each preset from the specified layout
 ///
 /// @example scss
-/// @include r-layout(intro) {
+/// @include layout(intro) {
 ///
 ///   .intro {
 ///
 ///     .intro-heading {
-///       font-size: rl-value(heading, font-size);
-///       line-height: rl-value(heading, line-height);
-///       margin-bottom: rl-value(heading, margin, bottom);
+///       font-size: value(heading, font-size);
+///       line-height: value(heading, line-height);
+///       margin-bottom: value(heading, margin, bottom);
 ///     }
 ///
 ///     .intro-text {
-///       font-size: rl-value(text, font-size);
+///       font-size: value(text, font-size);
 ///     }
 ///
 ///   }
@@ -120,7 +127,7 @@ $r-layout-size: null !default;
 /// }
 ///
 /// @access public
-@mixin r-layout($layout, $sizes...) {
+@mixin layout($layout, $sizes...) {
   $r-layout: map-get($r-layouts, $layout);
   //@debug $r-layout;
   @if $r-layout == null { @error 'Layout "#{$layout}" not found.'; }
@@ -165,15 +172,15 @@ $r-layout-size: null !default;
 
 /// Returns the parameter value from the current preset of the current layout
 ///
-/// **Attention!** Can only be used inside `r-layout`
+/// **Attention!** Can only be used inside `layout`
 ///
 /// @param {String} $parameter... - Parameter name in current layout preset
 /// @return Parameter value or `null`
 ///
-/// @require {mixin} r-layout
+/// @require {mixin} layout
 ///
 /// @access public
-@function rl-value($keys...) {
+@function value($keys...) {
   $key: nth($keys, 1);
   $set: if(map-has-key($r-layout-values, $key), $r-layout-values, null);
   @return if($set != null, rl-value-internal($set, $keys), null);
@@ -181,17 +188,17 @@ $r-layout-size: null !default;
 
 /// Returns the parameter value from the current preset of the current layout or default value
 ///
-/// **Attention!** Can only be used inside `r-layout`
+/// **Attention!** Can only be used inside `layout`
 ///
 /// @param {*} $def-value - Default value
 /// @param {String} $parameter... - Parameter name in current layout preset
 /// @return Parameter value or `$def-value`
 ///
-/// @require {mixin} r-layout
-/// @see {mixin} rl-value
+/// @require {mixin} layout
+/// @see {mixin} value
 ///
 /// @access public
-@function rl-def-value($def-value, $keys...) {
+@function def-value($def-value, $keys...) {
   $key: nth($keys, 1);
   $set: if(map-has-key($r-layout-values, $key), $r-layout-values, null);
   $result: if($set != null, rl-value-internal($set, $keys), null);
@@ -205,8 +212,8 @@ $r-layout-size: null !default;
 /// @param {String} $parameter... - Parameter name in specified layout preset
 /// @return Parameter value or `null`
 ///
-/// @acceess public
-@function rl-layout-value($layout-name, $size-name, $keys...) {
+/// @access public
+@function layout-value($layout-name, $size-name, $keys...) {
   $layout: map-get($r-layouts, $layout-name);
   @if $layout == null { @error 'Layout "#{$layout-name}" not found.'; }
   $all-values: map-get($layout, values);
@@ -228,8 +235,8 @@ $r-layout-size: null !default;
 /// @param {String} $parameter... - Parameter name in specified layout preset
 /// @return Parameter value or `$def-value`
 ///
-/// @acceess public
-@function rl-layout-def-value($def-value, $layout-name, $size-name, $keys...) {
-  $result: rl-layout-value($layout-name, $size-name, $keys...);
+/// @access public
+@function layout-def-value($def-value, $layout-name, $size-name, $keys...) {
+  $result: layout-value($layout-name, $size-name, $keys...);
   @return if($result == null, $def-value, $result);
 }

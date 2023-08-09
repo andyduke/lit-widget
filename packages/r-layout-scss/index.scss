@@ -1,2 +1,16 @@
+// @import entry point
 
-@import "scss/r-layouts";
+@forward "scss/r-layout" as rl-* hide $r-layouts, $r-layout-values, $r-layout-size;
+@use "scss/r-layout" as rl;
+
+/// Backward-compatible aliases
+
+@mixin r-define-layout($args...) {
+  @include rl.define-layout($args...);
+}
+
+@mixin r-layout($args...) {
+  @include rl.layout($args...) {
+    @content;
+  }
+}
