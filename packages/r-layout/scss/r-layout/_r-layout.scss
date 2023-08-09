@@ -70,26 +70,26 @@ $r-layout-size: null !default;
 
 /// Generates a MediaQuery with the given constraints
 ///
-/// @param {String} $layout - Layout name
-/// @param {Map}    $values - Layout values
+/// @param {Map} $layout - Breakpoint conditions
+/// @param {Map} $values - Layout values
 /// @content CSS rules
 ///
 /// @access private
-@mixin rl-query($layout, $values) {
+@mixin rl-query($breakpoint, $values) {
   $query: "";
   $old-values: $r-layout-values;
 
-  @if not map-has-key($layout, min) or
-      not map-has-key($layout, max) or
-      not map-has-key($layout, orientation) {
-    @error "Layout #{$layout}: invalid breakpoint condition, at least 'min', 'max' or 'orientation' must be specified.";
+  @if not map-has-key($breakpoint, min) and
+      not map-has-key($breakpoint, max) and
+      not map-has-key($breakpoint, orientation) {
+    @error "Invalid breakpoint condition, at least 'min', 'max' or 'orientation' must be specified.";
   }
 
   // Build media query
-  @if map-has-key($layout, min) { $query: append($query, "(min-width: #{map-get($layout, min)})") }
-  @if map-has-key($layout, min) and map-has-key($layout, max) { $query: append($query, "and") }
-  @if map-has-key($layout, max) { $query: append($query, "(max-width: #{map-get($layout, max)})") }
-  @if map-has-key($layout, orientation) { $query: append($query, " and (orientation: #{map-get($layout, orientation)})") }
+  @if map-has-key($breakpoint, min) { $query: append($query, "(min-width: #{map-get($breakpoint, min)})") }
+  @if map-has-key($breakpoint, min) and map-has-key($breakpoint, max) { $query: append($query, "and") }
+  @if map-has-key($breakpoint, max) { $query: append($query, "(max-width: #{map-get($breakpoint, max)})") }
+  @if map-has-key($breakpoint, orientation) { $query: append($query, " and (orientation: #{map-get($breakpoint, orientation)})") }
 
   // Set preset values
   $r-layout-values: $values !global;
